@@ -23,7 +23,7 @@ impl SlashCommand for UsageCommand {
     }
 
     fn description(&self) -> &str {
-        "View credit usage or manage billing"
+        "查看额度或管理账单"
     }
 
     fn usage(&self) -> &str {

@@ -18,7 +18,7 @@ impl SlashCommand for CompactModeCommand {
     }
 
     fn description(&self) -> &str {
-        "Toggle compact UI (less padding, more content)"
+        "切换紧凑界面（更少边距、更多内容）"
     }
 
     fn usage(&self) -> &str {

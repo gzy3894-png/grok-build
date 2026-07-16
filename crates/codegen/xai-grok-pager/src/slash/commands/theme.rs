@@ -26,7 +26,7 @@ impl SlashCommand for ThemeCommand {
     }
 
     fn description(&self) -> &str {
-        "Switch the color theme"
+        "切换配色主题"
     }
 
     /// Minimal has no theming, so there is nothing for `/theme` to switch.

@@ -2166,14 +2166,14 @@ impl AgentView {
         }
         if self.session.is_yolo() && !effective_plan {
             mode_flags_vec.push(PromptFlag {
-                text: "always-approve",
+                text: "始终批准",
                 color: None,
                 bold: false,
             });
         }
         if self.auto_flag_visible(effective_plan) {
             mode_flags_vec.push(PromptFlag {
-                text: "auto",
+                text: "自动",
                 color: Some(theme.accent_system),
                 bold: false,
             });

@@ -14,7 +14,7 @@ impl SlashCommand for AnnouncementsCommand {
     }
 
     fn description(&self) -> &str {
-        "Show or hide announcements"
+        "显示或隐藏公告"
     }
 
     fn usage(&self) -> &str {

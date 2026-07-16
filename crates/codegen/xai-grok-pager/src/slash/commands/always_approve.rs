@@ -19,7 +19,7 @@ impl SlashCommand for AlwaysApproveCommand {
     }
 
     fn description(&self) -> &str {
-        "Toggle always-approve mode (skip all permission prompts)"
+        "切换始终批准模式（跳过所有权限确认）"
     }
 
     fn usage(&self) -> &str {

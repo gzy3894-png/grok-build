@@ -41,7 +41,7 @@ pub(crate) const MAX_THOUGHTS_WIDTH_KEY: &str = "max_thoughts_width";
 const THEME_CHOICES: &[EnumChoice] = &[
     EnumChoice {
         canonical: "auto",
-        display: "Auto",
+        display: "自动",
         description: "Follow system dark/light appearance.",
     },
     EnumChoice {
@@ -99,23 +99,23 @@ const PERMISSION_MODE_CHOICES: &[EnumChoice] = &[
     // distinct on disk and in the modal indicator.
     EnumChoice {
         canonical: "default",
-        display: "Default",
-        description: "Use the agent's default permission behavior (currently equivalent to Ask).",
+        display: "默认",
+        description: "使用代理默认权限行为（当前等同于「询问」）。",
     },
     EnumChoice {
         canonical: "ask",
-        display: "Ask",
-        description: "Prompt for permission before tool actions.",
+        display: "询问",
+        description: "执行工具操作前询问权限。",
     },
     EnumChoice {
         canonical: "auto",
-        display: "Auto",
-        description: "LLM classifier approves safe tools; dangerous actions may still prompt or deny.",
+        display: "自动",
+        description: "由 LLM 分类器批准安全工具；危险操作仍可能询问或拒绝。",
     },
     EnumChoice {
         canonical: "always-approve",
-        display: "Always approve",
-        description: "Auto-approve every tool action. Skips ALL permission prompts.",
+        display: "始终批准",
+        description: "自动批准所有工具操作。跳过全部权限确认。",
     },
 ];
 
@@ -133,12 +133,12 @@ const PERMISSION_MODE_CHOICES: &[EnumChoice] = &[
 const CODING_DATA_SHARING_CHOICES: &[EnumChoice] = &[
     EnumChoice {
         canonical: "opt-in",
-        display: "Opt in",
+        display: "选择加入",
         description: "Allow SpaceXAI to retain and use coding session data for training and product improvement.",
     },
     EnumChoice {
         canonical: "opt-out",
-        display: "Opt out",
+        display: "选择退出",
         description: "Do not retain coding session data. Code requests will not be used for training.",
     },
 ];
@@ -205,12 +205,12 @@ const DEFAULT_SELECTED_PERMISSION_CHOICES: &[EnumChoice] = &[
 const PLAN_MODE_CHOICES: &[EnumChoice] = &[
     EnumChoice {
         canonical: "off",
-        display: "Off",
+        display: "关",
         description: "Agent runs tools and edits files directly (default).",
     },
     EnumChoice {
         canonical: "on",
-        display: "On",
+        display: "开",
         description: "Agent summarises a plan and asks for approval before running tools.",
     },
 ];
@@ -226,17 +226,17 @@ const PLAN_MODE_CHOICES: &[EnumChoice] = &[
 const RENDER_MERMAID_CHOICES: &[EnumChoice] = &[
     EnumChoice {
         canonical: "auto",
-        display: "Auto",
+        display: "自动",
         description: "Show diagrams with a clickable row to open/copy the rendered image.",
     },
     EnumChoice {
         canonical: "on",
-        display: "On",
+        display: "开",
         description: "Same as auto: always show the clickable affordance row.",
     },
     EnumChoice {
         canonical: "off",
-        display: "Off",
+        display: "关",
         description: "Always show the raw Mermaid source as a code block.",
     },
 ];
@@ -295,7 +295,7 @@ const HUNK_TRACKER_MODE_CHOICES: &[EnumChoice] = &[
     },
     EnumChoice {
         canonical: "off",
-        display: "Off",
+        display: "关",
         description: "Disable hunk tracking entirely. Also disables LOC tracking.",
     },
 ];
@@ -526,7 +526,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "compact_mode",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Compact mode",
+            label: "紧凑模式",
             description: "Reduce padding around messages for more content density. \
                           Auto-enabled while the terminal is 20 rows or shorter.",
             keywords: &[
@@ -570,7 +570,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "show_timestamps",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Show timestamps",
+            label: "显示时间戳",
             description: "Show clock time next to user messages and agent responses.",
             keywords: &["timestamps", "time", "clock", "date"],
             kind: SettingKind::Bool {
@@ -602,7 +602,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "simple_mode",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Disable vim input mode",
+            label: "禁用 Vim 输入模式",
             description: "Use plain readline-style input instead of vim keys in the prompt. Experimental.",
             keywords: &[
                 "simple",
@@ -632,7 +632,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "vim_mode",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shell,
-            label: "Vim scrollback navigation",
+            label: "Vim 回滚导航",
             description: "Enable vim keys (h/j/k/l, gg/G, /) for navigating the scrollback. Does not affect the input prompt.",
             keywords: &[
                 "vim",
@@ -654,7 +654,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "theme",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Theme",
+            label: "主题",
             description: "Color theme for the pager UI.",
             keywords: &[
                 "theme",
@@ -678,7 +678,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "auto_dark_theme",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Auto dark theme",
+            label: "自动深色主题",
             description: "Theme to use when the system is in dark mode (only with theme=auto).",
             keywords: &["auto", "dark", "theme", "system", "appearance", "night"],
             kind: SettingKind::Enum {
@@ -694,7 +694,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "auto_light_theme",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Auto light theme",
+            label: "自动浅色主题",
             description: "Theme to use when the system is in light mode (only with theme=auto).",
             keywords: &["auto", "light", "theme", "system", "appearance", "day"],
             kind: SettingKind::Enum {
@@ -713,7 +713,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "render_mermaid",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shell,
-            label: "Render Mermaid diagrams",
+            label: "渲染 Mermaid 图",
             description: "How ```mermaid code blocks are shown: auto/on add a clickable row to \
                           open the rendered diagram; off shows the raw source.",
             keywords: &[
@@ -740,7 +740,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "permission_mode",
             category: SettingCategory::Agent,
             owner: SettingOwner::Shell,
-            label: "Permission mode",
+            label: "权限模式",
             description: "Default uses the agent's built-in behavior; \
                           Ask prompts for each tool action; \
                           Auto uses an LLM classifier for risky tools; \
@@ -772,7 +772,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "remember_tool_approvals",
             category: SettingCategory::Agent,
             owner: SettingOwner::Shell,
-            label: "Remember tool approvals",
+            label: "记住工具批准",
             description: "Show \"Always allow\" options in permission prompts so you can stop \
                           being re-asked about a specific command or tool. Applies in ask and \
                           auto; Always-approve still skips all prompts. Restart required.",
@@ -801,7 +801,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "multiline_mode",
             category: SettingCategory::Editor,
             owner: SettingOwner::Pager,
-            label: "Multiline",
+            label: "多行",
             description: "When on, Enter inserts a newline and Shift+Enter sends. Resets each session.",
             keywords: &["multiline", "newline", "input", "editor", "enter"],
             kind: SettingKind::Bool { default: false },
@@ -815,7 +815,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "default_model",
             category: SettingCategory::Models,
             owner: SettingOwner::Shell,
-            label: "Default model",
+            label: "默认模型",
             description: "Model used for new sessions. Changing this also switches the active session. Pick `(no override)` to clear.",
             keywords: &["model", "default", "agent", "llm", "grok", "switch"],
             kind: SettingKind::DynamicEnum {
@@ -832,7 +832,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: MAX_THOUGHTS_WIDTH_KEY,
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shared,
-            label: "Max thoughts width",
+            label: "思考块最大宽度",
             description: "Column width budget for the agent's thoughts panel (40-500, default 120).",
             keywords: &[
                 "thoughts",
@@ -856,7 +856,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "show_thinking_blocks",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shell,
-            label: "Show thinking blocks",
+            label: "显示思考块",
             description: "Show agent thinking/reasoning blocks in the scrollback while streaming.",
             keywords: &[
                 "thinking",
@@ -878,7 +878,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "prompt_suggestions",
             category: SettingCategory::Editor,
             owner: SettingOwner::Shell,
-            label: "Prompt suggestions",
+            label: "提示建议",
             description: "After each turn, predict your likely next prompt and show it as \
                           ghost text in the input (Tab to accept). Uses a small model call \
                           per turn.",
@@ -906,7 +906,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "respect_manual_folds",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Pager,
-            label: "Respect manual folds",
+            label: "保留手动折叠",
             description: "Keep manually folded blocks as-is while streaming and stop \
                           auto-scroll when expanding a block. Experimental.",
             keywords: &[
@@ -923,7 +923,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "group_tool_verbs",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shell,
-            label: "Group tool calls",
+            label: "合并工具调用",
             description: "Fold consecutive read/search/list tool calls and subagent rows into \
                           one summary row; finished thoughts fold into the group too.",
             keywords: &[
@@ -942,10 +942,8 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "collapsed_edit_blocks",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shell,
-            label: "Collapsed edit blocks",
-            description: "Show edits as one-line +N/-M diffstat summaries and merge \
-                          back-to-back edits to the same file into one block; expand a \
-                          row to see the diffs.",
+            label: "折叠编辑块",
+            description: "将编辑显示为一行 +N/-M 摘要，并把同一文件连续编辑合并为一块；展开行可查看 diff。",
             keywords: &[
                 "edit",
                 "edits",
@@ -971,7 +969,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "display_refresh_auto_cadence",
             category: SettingCategory::Appearance,
             owner: SettingOwner::Shell,
-            label: "Match display refresh rate",
+            label: "匹配显示刷新率",
             description: "On high-refresh displays, the TUI will stream/scroll faster \
                           to match the display. Off keeps the classic ~60 Hz cadence. \
                           Restart required.",
@@ -993,7 +991,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "scroll_speed",
             category: SettingCategory::Mouse,
             owner: SettingOwner::Shell,
-            label: "Scroll speed",
+            label: "滚动速度",
             description: "Mouse-wheel and trackpad scroll speed multiplier (1-100). Higher = faster.",
             keywords: &[
                 "scroll", "speed", "mouse", "wheel", "trackpad", "fast", "slow",
@@ -1011,7 +1009,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "scroll_mode",
             category: SettingCategory::Mouse,
             owner: SettingOwner::Shell,
-            label: "Scroll input",
+            label: "滚动输入",
             description: "Force wheel or trackpad scroll behavior when auto-detection \
                           misreads your device.",
             keywords: &[
@@ -1038,7 +1036,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "scroll_lines",
             category: SettingCategory::Mouse,
             owner: SettingOwner::Shell,
-            label: "Scroll lines",
+            label: "滚动行数",
             description: "Lines per scroll tick for both wheel and trackpad (1-10). \
                           Until set, each terminal's own profile applies.",
             keywords: &[
@@ -1057,7 +1055,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "invert_scroll",
             category: SettingCategory::Mouse,
             owner: SettingOwner::Shell,
-            label: "Invert scroll",
+            label: "反转滚动",
             description: "Reverse vertical scroll direction (natural scrolling).",
             keywords: &[
                 "invert",
@@ -1079,7 +1077,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "keep_text_selection",
             category: SettingCategory::Mouse,
             owner: SettingOwner::Shell,
-            label: "Text selection",
+            label: "文本选择",
             description: "How long in-app selection stays on screen and what double-click does (fold vs. select & copy a word). For your terminal or multiplexer's own selection, hold Shift while dragging (native copy).",
             keywords: &[
                 "selection",
@@ -1112,7 +1110,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "coding_data_sharing",
             category: SettingCategory::Privacy,
             owner: SettingOwner::Shell,
-            label: "Coding data sharing",
+            label: "编程数据共享",
             description: "Controls whether SpaceXAI may retain and train on coding session data.",
             keywords: &[
                 "privacy",
@@ -1142,7 +1140,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "default_selected_permission",
             category: SettingCategory::Agent,
             owner: SettingOwner::Shell,
-            label: "Default selected permission",
+            label: "默认选中的权限选项",
             description: "Which row the cursor preselects on permission prompts.",
             keywords: &[
                 "permission",
@@ -1175,7 +1173,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "toolset.ask_user_question.timeout_enabled",
             category: SettingCategory::Agent,
             owner: SettingOwner::Shell,
-            label: "Ask-Question timeout",
+            label: "提问超时",
             description: "When on, the ask_user_question tool will time out after a set period \
                           of time instead of infinitely blocking.",
             keywords: &[
@@ -1202,8 +1200,8 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "plan_mode",
             category: SettingCategory::Agent,
             owner: SettingOwner::Pager,
-            label: "Plan mode",
-            description: "When on, the agent summarises a plan before running tools or making edits.",
+            label: "计划模式",
+            description: "开启后，代理在运行工具或编辑前会先总结计划。",
             keywords: &[
                 "plan", "mode", "agent", "summary", "approval", "review", "session",
             ],
@@ -1221,8 +1219,8 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "show_tips",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Show tips",
-            description: "Show the tip-of-the-day banner on startup. Restart required.",
+            label: "显示提示",
+            description: "启动时显示每日提示横幅。需重启生效。",
             keywords: &[
                 "tips", "tip", "show", "banner", "welcome", "startup", "launch",
             ],
@@ -1237,7 +1235,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Show contextual hints",
+            label: "显示情境提示",
             description: "Show brief, in-context keyboard hints as you work; \
                           toggle each one individually.",
             keywords: &[
@@ -1279,7 +1277,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "auto_update",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Auto-update",
+            label: "自动更新",
             description: "Automatically download and install pager updates on startup. \
                           Restart required.",
             keywords: &[
@@ -1295,7 +1293,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "hunk_tracker_mode",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Hunk tracker",
+            label: "改动块跟踪",
             description: "Which file changes the agent tracks as hunks. \
                           Off disables tracking (and LOC stats) entirely. \
                           Restart required.",
@@ -1317,7 +1315,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "voice_capture_mode",
             category: SettingCategory::Editor,
             owner: SettingOwner::Shell,
-            label: "Voice capture",
+            label: "语音采集",
             description: "How the voice chord (Ctrl+Space / F8) behaves: Toggle \
                           (press to start/stop) or Hold to talk (hold to record, \
                           release to stop; needs a Kitty-protocol terminal).",
@@ -1351,7 +1349,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "voice_stt_language",
             category: SettingCategory::Editor,
             owner: SettingOwner::Shell,
-            label: "Voice language",
+            label: "语音语言",
             description: "Speech-to-text language for voice dictation (Grok STT). \
                           English by default; System uses your locale when supported. \
                           Sets formatting language for numbers and currencies.",
@@ -1370,7 +1368,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints.undo",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Undo",
+            label: "撤销",
             description: "Remind you that Ctrl+Z restores the prompt after you clear it.",
             keywords: &["undo", "ctrl+z", "draft", "wipe", "hint"],
             kind: SettingKind::Bool {
@@ -1383,7 +1381,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints.plan_mode",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Plan mode",
+            label: "计划模式",
             description: "Suggest plan mode (Shift+Tab) when your prompt looks like a \
                           planning request.",
             keywords: &["plan", "mode", "nudge", "shift+tab", "hint"],
@@ -1397,7 +1395,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints.image_input",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Image input",
+            label: "图片输入",
             description: "Offer to paste an image when one is on the clipboard and the \
                           model accepts images.",
             keywords: &["image", "clipboard", "paste", "input", "hint"],
@@ -1411,7 +1409,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints.send_now",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Send now",
+            label: "立即发送",
             description: "After you queue a follow-up mid-turn, remind you that Enter \
                           on an empty prompt sends the top queued item now.",
             keywords: &[
@@ -1434,7 +1432,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints.small_screen",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Small screen",
+            label: "小屏",
             description: "Suggest /compact-mode once per run when the terminal \
                           is short on rows.",
             keywords: &["small", "screen", "compact", "space", "rows", "hint"],
@@ -1448,7 +1446,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "contextual_hints.word_select",
             category: SettingCategory::Advanced,
             owner: SettingOwner::Shell,
-            label: "Word select",
+            label: "词选择",
             description: "After double-clicking conversation text while Text selection \
                           is fold/nav, remind you that Word select lives in Settings.",
             keywords: &[
@@ -1482,7 +1480,7 @@ pub fn default_settings() -> Vec<SettingMeta> {
             key: "fork_secondary_model",
             category: SettingCategory::Models,
             owner: SettingOwner::Shell,
-            label: "Fork secondary model",
+            label: "分支副模型",
             description: "Model used for the secondary agent when forking. Pick `(no override)` to clear.",
             keywords: &[
                 "fork",

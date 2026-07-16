@@ -495,20 +495,20 @@ fn paint_peek_config_badge(
     // honest badge even when yolo stays armed underneath.
     if panel.plan_mode {
         flags.push(PromptFlag {
-            text: "plan",
+            text: "计划",
             color: Some(theme.accent_plan),
             bold: false,
         });
     } else if panel.auto_approve {
         flags.push(PromptFlag {
-            text: "always-approve",
+            text: "始终批准",
             color: None,
             bold: false,
         });
     } else if panel.auto {
         // Auto (LLM classifier) mode. Blue `accent_system`.
         flags.push(PromptFlag {
-            text: "auto",
+            text: "自动",
             color: Some(theme.accent_system),
             bold: false,
         });

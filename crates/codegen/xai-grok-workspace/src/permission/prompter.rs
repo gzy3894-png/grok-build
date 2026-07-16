@@ -245,7 +245,7 @@ pub fn mcp_pretty_name_if_qualified(name: &str) -> String {
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct McpToolPermission {
     /// Static label prefix shown before the dynamic scope text,
-    /// e.g. `"Always allow:"`. Mirrors `BashCommandPermission::prompt_prefix`.
+    /// e.g. `"始终允许："`. Mirrors `BashCommandPermission::prompt_prefix`.
     pub prompt_prefix: String,
     /// Full tool name as the agent called it
     /// (e.g. `"grok_com_notion__notion-fetch"`).
@@ -594,7 +594,7 @@ impl AcpPrompter {
                         if let Some(primary_command) = &primary_command {
                             let (id, option) = bash_scope_option(
                                 "allow-always-command",
-                                "Always allow:",
+                                "始终允许：",
                                 acp::PermissionOptionKind::AllowAlways,
                                 primary_command,
                             );
@@ -676,12 +676,12 @@ impl AcpPrompter {
                             acp::PermissionOptionId::new("allow-always-mcp"),
                             acp::PermissionOption::new(
                                 "allow-always-mcp",
-                                format!("Always allow: {}", tool_name),
+                                format!("始终允许：{}", tool_name),
                                 acp::PermissionOptionKind::AllowAlways,
                             )
                             .meta(
                                 serde_json::to_value(McpToolPermission {
-                                    prompt_prefix: "Always allow:".to_owned(),
+                                    prompt_prefix: "始终允许：".to_owned(),
                                     tool_name: tool_name.clone(),
                                     server_prefix,
                                 })
@@ -1182,7 +1182,7 @@ mod tests {
             serde_json::from_value(serde_json::Value::Object(meta)).unwrap();
         assert_eq!(perm.tool_name, "linear__list");
         assert_eq!(perm.server_prefix.as_deref(), Some("linear"));
-        assert_eq!(perm.prompt_prefix, "Always allow:");
+        assert_eq!(perm.prompt_prefix, "始终允许：");
     }
 
     #[test]

@@ -20,7 +20,7 @@ impl SlashCommand for ExpandCommand {
     }
 
     fn description(&self) -> &str {
-        "Re-print the last collapsed block, fully expanded (minimal mode)"
+        "重新完整展开上一个折叠块（精简模式）"
     }
 
     fn session_scoped(&self) -> bool {

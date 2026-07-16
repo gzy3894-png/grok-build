@@ -12,7 +12,7 @@ impl SlashCommand for CopyCommand {
     }
 
     fn description(&self) -> &str {
-        "Copy last response to clipboard (/copy N for Nth-latest)"
+        "复制最近一条回复到剪贴板（/copy N 复制第 N 条）"
     }
 
     fn session_scoped(&self) -> bool {
