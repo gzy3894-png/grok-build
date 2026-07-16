@@ -58,20 +58,22 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: grok-build-windows
+          # Bump key when link/PDB flags change so stale debug objects are not reused.
+          shared-key: grok-build-windows-winprofile-v2
           cache-on-failure: true
 
-      # Workspace [profile.release] keeps debug=1 + strip=false for Linux/macOS
-      # sidecars. On MSVC that blows past the PDB public-symbol limit (LNK4319).
+      # MSVC LNK4319: PDB public-symbol limit on this binary. Use release-win
+      # (debug=0, strip) and force /DEBUG:NONE — env CARGO_PROFILE_* alone was
+      # not enough (run 29488238566 still failed at link after ~42m).
       - name: Release build (pager bin)
         shell: pwsh
         env:
-          CARGO_PROFILE_RELEASE_DEBUG: "0"
-          CARGO_PROFILE_RELEASE_STRIP: "true"
-          CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO: "off"
+          # Appended to .cargo/config.toml target rustflags (crt-static, etc.).
+          RUSTFLAGS: "-C debuginfo=0 -C strip=symbols -C link-arg=/DEBUG:NONE"
         run: |
           $ErrorActionPreference = "Stop"
           Write-Host "PROTOC=$env:PROTOC"
+          Write-Host "RUSTFLAGS=$env:RUSTFLAGS"
           if (-not $env:PROTOC -or -not (Test-Path $env:PROTOC)) {
             throw "PROTOC not set to a real protoc.exe"
           }
@@ -80,7 +82,7 @@ jobs:
             Rename-Item "bin/protoc" "protoc.dotslash.bak"
           }
           try {
-            cargo build -p xai-grok-pager-bin --release
+            cargo build -p xai-grok-pager-bin --profile release-win
           } finally {
             if (Test-Path "bin/protoc.dotslash.bak") {
               Rename-Item "bin/protoc.dotslash.bak" "protoc"
@@ -92,9 +94,10 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          $src = "target/release/xai-grok-pager.exe"
+          $src = "target/release-win/xai-grok-pager.exe"
           if (-not (Test-Path $src)) {
-            Get-ChildItem target/release -Filter *.exe | Select-Object Name, Length
+            Get-ChildItem target -Recurse -Filter xai-grok-pager.exe -ErrorAction SilentlyContinue |
+              Select-Object FullName, Length
             throw "missing $src"
           }
           Copy-Item $src dist/grok-app.exe

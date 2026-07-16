@@ -68,10 +68,10 @@ impl DefaultSelectedPermission {
     /// global allow-everything — that is `AlwaysAllowAllSessions`.
     pub const fn display(self) -> &'static str {
         match self {
-            Self::AlwaysAllowAllSessions => "Always allow on all sessions",
-            Self::AllowOnce => "Allow once",
-            Self::AllowCommandAlways => "Always allow this command",
-            Self::Reject => "Reject",
+            Self::AlwaysAllowAllSessions => "始终允许（所有会话）",
+            Self::AllowOnce => "允许一次",
+            Self::AllowCommandAlways => "始终允许此命令",
+            Self::Reject => "拒绝",
         }
     }
 

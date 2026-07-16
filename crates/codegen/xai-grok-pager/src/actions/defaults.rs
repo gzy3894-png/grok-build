@@ -653,7 +653,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
             // Fn+F8 on a laptop). The event loop maps a press to hold-to-talk or
             // tap-toggle per `[ui].voice_capture_mode` before normal routing.
             id: ActionId::VoiceToggle,
-            label: "mic",
+            label: "麦克风",
             description: "语音听写（Ctrl+Space / F8）",
             default_key: key!(' ', CONTROL),
             alt_keys: vec![key!(F(8))],
@@ -687,7 +687,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::BashMode,
-            label: "shell",
+            label: "Shell",
             description: "Shell 模式（空输入时输入 !）",
             default_key: key!('!'),
             alt_keys: vec![],
@@ -794,7 +794,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::ModelPicker,
-            label: "model",
+            label: "模型",
             description: "选择模型",
             default_key: key!('m', CONTROL),
             alt_keys: vec![],
@@ -834,7 +834,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
     if mouse_reporting_toggle_enabled {
         actions.push(ActionDef {
             id: ActionId::ToggleMouseCapture,
-            label: "mouse reporting",
+            label: "鼠标上报",
             description: "切换鼠标上报（原生复制粘贴）",
             default_key: key!('r', CONTROL),
             alt_keys: vec![],
@@ -860,7 +860,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
     actions.extend([
         ActionDef {
             id: ActionId::OpenDashboard,
-            label: "dashboard",
+            label: "仪表盘",
             description: "打开代理仪表盘",
             default_key: key!('\\', CONTROL),
             alt_keys: vec![],
@@ -880,7 +880,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         // rebind any of them through `~/.grok/config.toml`.
         ActionDef {
             id: ActionId::DashboardSelectNext,
-            label: "next",
+            label: "下一行",
             description: "选择下一行",
             default_key: key!(Down),
             alt_keys: vec![key!('j')],
@@ -893,7 +893,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardSelectPrev,
-            label: "prev",
+            label: "上一行",
             description: "选择上一行",
             default_key: key!(Up),
             alt_keys: vec![key!('k')],
@@ -906,7 +906,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardTogglePin,
-            label: "pin",
+            label: "固定",
             description: "固定/取消固定代理",
             default_key: key!('t', CONTROL),
             alt_keys: vec![],
@@ -921,7 +921,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardBeginRename,
-            label: "rename",
+            label: "重命名",
             description: "重命名代理",
             default_key: key!('r', CONTROL),
             alt_keys: vec![],
@@ -967,7 +967,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardToggleGrouping,
-            label: "group",
+            label: "分组",
             description: "切换行分组",
             // `Ctrl+G` ("group"). `Ctrl+S` was reassigned to the peek /
             // dispatch "send + open" chord so `Shift+Enter` could be
@@ -987,7 +987,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardReorderUp,
-            label: "reorder up",
+            label: "上移",
             description: "代理上移",
             default_key: key!(Up, SHIFT),
             alt_keys: vec![],
@@ -1000,7 +1000,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardReorderDown,
-            label: "reorder down",
+            label: "下移",
             description: "代理下移",
             default_key: key!(Down, SHIFT),
             alt_keys: vec![],
@@ -1048,7 +1048,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         // effective binding via `Esc` as a fallback.
         ActionDef {
             id: ActionId::DashboardExit,
-            label: "exit",
+            label: "退出",
             description: "关闭仪表盘",
             default_key: key!(Esc),
             alt_keys: vec![],
@@ -1067,7 +1067,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         // view (and from inside the session overlay).
         ActionDef {
             id: ActionId::DashboardToggleAutoApprove,
-            label: "always-approve",
+            label: "始终批准",
             description: "切换始终批准",
             default_key: key!('o', CONTROL),
             alt_keys: vec![],
@@ -1086,7 +1086,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         // OpenExtensions under `AgentScreen`, a different context).
         ActionDef {
             id: ActionId::DashboardOpenLocationPicker,
-            label: "location",
+            label: "位置",
             description: "更改新代理工作目录",
             default_key: key!('l', CONTROL),
             alt_keys: vec![],
@@ -1106,7 +1106,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         // under `DashboardOverlay`, a different context).
         ActionDef {
             id: ActionId::DashboardToggleWorktree,
-            label: "worktree",
+            label: "工作树",
             description: "切换新代理的 worktree 模式",
             default_key: key!('w', CONTROL),
             alt_keys: vec![],
@@ -1126,7 +1126,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         // they don't apply) while keeping them lit inside the overlay.
         ActionDef {
             id: ActionId::DashboardOverlayExit,
-            label: "close overlay",
+            label: "关闭浮层",
             description: "返回仪表盘",
             // The primary back-out shortcuts are reached through
             // different routes:
@@ -1159,7 +1159,7 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         },
         ActionDef {
             id: ActionId::DashboardOverlayPrev,
-            label: "prev session",
+            label: "上一会话",
             description: "上一会话",
             default_key: key!('[', CONTROL),
             alt_keys: vec![],

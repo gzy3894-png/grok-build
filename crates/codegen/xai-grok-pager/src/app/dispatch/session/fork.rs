@@ -99,14 +99,14 @@ pub(super) fn worktree_persist_options()
     use xai_grok_tools::implementations::grok_build::ask_user_question::QuestionOption;
     [
         QuestionOption {
-            label: "Always worktree".into(),
-            description: "Use worktree and stop asking (reset in config.toml)".into(),
+            label: "始终使用 worktree".into(),
+            description: "使用 worktree 且不再询问（可在 config.toml 重置）".into(),
             preview: None,
             id: None,
         },
         QuestionOption {
-            label: "Never worktree".into(),
-            description: "Skip worktree and stop asking (reset in config.toml)".into(),
+            label: "从不使用 worktree".into(),
+            description: "跳过 worktree 且不再询问（可在 config.toml 重置）".into(),
             preview: None,
             id: None,
         },
@@ -127,26 +127,26 @@ fn open_fork_question(app: &mut AppView, directive: Option<String>) -> Vec<Effec
         return vec![];
     };
     if agent.question_view.is_some() {
-        app.show_toast("Finish answering the current question first");
+        app.show_toast("请先完成当前问题");
         return vec![];
     }
     let mut options = vec![
         QuestionOption {
-            label: "Yes".into(),
-            description: "Fork in a new isolated git worktree".into(),
+            label: "是".into(),
+            description: "在新的隔离 git worktree 中分支".into(),
             preview: None,
             id: None,
         },
         QuestionOption {
-            label: "No".into(),
-            description: "Fork in the current cwd".into(),
+            label: "否".into(),
+            description: "在当前工作目录中分支".into(),
             preview: None,
             id: None,
         },
     ];
     options.extend(worktree_persist_options());
     let question = Question {
-        question: "Run this fork in an isolated git worktree?".into(),
+        question: "是否在隔离的 git worktree 中运行此分支？".into(),
         id: None,
         options,
         multi_select: Some(false),

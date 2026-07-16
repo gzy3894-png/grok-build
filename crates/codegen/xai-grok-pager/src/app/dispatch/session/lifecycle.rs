@@ -164,26 +164,26 @@ pub(in crate::app::dispatch) fn open_new_session_question(app: &mut AppView) -> 
         return vec![];
     };
     if agent.question_view.is_some() {
-        app.show_toast("Finish answering the current question first");
+        app.show_toast("请先完成当前问题");
         return vec![];
     }
     let mut options = vec![
         QuestionOption {
-            label: "Yes".into(),
-            description: "New session in a new isolated git worktree".into(),
+            label: "是".into(),
+            description: "在新的隔离 git worktree 中新建会话".into(),
             preview: None,
             id: None,
         },
         QuestionOption {
-            label: "No".into(),
-            description: "New session in the current cwd".into(),
+            label: "否".into(),
+            description: "在当前工作目录新建会话".into(),
             preview: None,
             id: None,
         },
     ];
     options.extend(worktree_persist_options());
     let question = Question {
-        question: "Start the new session in an isolated git worktree?".into(),
+        question: "是否在隔离的 git worktree 中启动新会话？".into(),
         id: None,
         options,
         multi_select: Some(false),
@@ -223,22 +223,22 @@ pub(in crate::app::dispatch) fn open_agent_type_mismatch_question(
         return vec![];
     };
     if agent.question_view.is_some() {
-        app.show_toast("Finish answering the current question first");
+        app.show_toast("请先完成当前问题");
         return vec![];
     }
     let question = Question {
-        question: format!("Switching to {model_name} requires starting a new session. Continue?"),
+        question: format!("切换到 {model_name} 需要新建会话。是否继续？"),
         id: None,
         options: vec![
             QuestionOption {
-                label: "Yes".into(),
-                description: format!("Start a new session with {model_name}"),
+                label: "是".into(),
+                description: format!("用 {model_name} 启动新会话"),
                 preview: None,
                 id: None,
             },
             QuestionOption {
-                label: "No".into(),
-                description: "Continue the current session".into(),
+                label: "否".into(),
+                description: "继续当前会话".into(),
                 preview: None,
                 id: None,
             },

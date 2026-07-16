@@ -38,7 +38,7 @@ struct ClearTarget {
 
 fn workspace_target(storage: &MemoryStorage) -> ClearTarget {
     ClearTarget {
-        label: "workspace memory",
+        label: "工作区记忆",
         path: storage.workspace_dir().to_path_buf(),
         clear: |s| s.clear_workspace(),
     }
@@ -46,7 +46,7 @@ fn workspace_target(storage: &MemoryStorage) -> ClearTarget {
 
 fn global_target(storage: &MemoryStorage) -> ClearTarget {
     ClearTarget {
-        label: "global MEMORY.md",
+        label: "全局 MEMORY.md",
         path: storage.global_memory_file(),
         clear: |s| s.clear_global(),
     }

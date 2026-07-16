@@ -325,6 +325,17 @@ zstd = "0.13"
 incremental = true
 panic = "abort"
 
+# Windows CI only: MSVC hits LNK4319 (PDB public-symbol limit) on the full
+# pager binary when any debug/PDB path is left on. No local use required.
+[profile.release-win]
+inherits = "release"
+incremental = false
+debug = 0
+strip = "symbols"
+split-debuginfo = "off"
+lto = "thin"
+codegen-units = 16
+
 # Hardened release profile for shipping to end users (alpha + stable).
 # Use `cargo build --profile release-dist` for distribution builds.
 # Not used by default `--release` to avoid slowing down local dev builds (~2.2x).

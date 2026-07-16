@@ -76,13 +76,13 @@ impl ShortcutsHelpEntry {
 
 /// Category display order and labels for the cheatsheet.
 const CATEGORY_ORDER: &[(Category, &str)] = &[
-    (Category::GettingStarted, "Essentials"),
-    (Category::Input, "Input"),
-    (Category::ConversationNav, "Conversation Navigation"),
-    (Category::ConversationAction, "Conversation Actions"),
-    (Category::Panels, "Panels"),
-    (Category::Session, "Session"),
-    (Category::Dashboard, "Dashboard"),
+    (Category::GettingStarted, "基础"),
+    (Category::Input, "输入"),
+    (Category::ConversationNav, "对话导航"),
+    (Category::ConversationAction, "对话操作"),
+    (Category::Panels, "面板"),
+    (Category::Session, "会话"),
+    (Category::Dashboard, "仪表盘"),
 ];
 
 pub fn default_collapsed() -> std::collections::HashSet<usize> {
@@ -93,23 +93,21 @@ pub fn default_collapsed() -> std::collections::HashSet<usize> {
 // hold on every host (agent + dashboard); non-image file paths are agent-only.
 #[cfg(target_os = "windows")]
 const PASTE_LONG_HELP: &str = "\
-Pastes clipboard images into the prompt as chips, and plain text as typed.\n\
-Prefer Ctrl+V. Use Alt+V as a fallback when Ctrl+V fails (some terminals or \
-configs drop image clipboards; older Windows Terminal versions only pasted \
-text).\n\
-You can also drag an image file from Explorer into the prompt.";
+将剪贴板中的图片粘贴为提示芯片，纯文本按普通输入粘贴。\n\
+优先用 Ctrl+V。Ctrl+V 失败时可用 Alt+V 兜底（部分终端或配置会丢掉图片剪贴板；\
+旧版 Windows Terminal 可能只粘贴文字）。\n\
+也可从资源管理器把图片文件拖进提示框。";
 #[cfg(target_os = "macos")]
 const PASTE_LONG_HELP: &str = "\
-Pastes clipboard images into the prompt as chips, and plain text as typed.\n\
-Use Ctrl+V for screenshots, browser \"Copy Image\", and file-manager image \
-copies (many terminals swallow Cmd+V and never deliver it to the TUI).\n\
-You can also drag an image file into the prompt.";
+将剪贴板中的图片粘贴为提示芯片，纯文本按普通输入粘贴。\n\
+用 Ctrl+V 粘贴截图、浏览器「复制图片」或文件管理器中的图片\
+（许多终端会吞掉 Cmd+V，不会交给 TUI）。\n\
+也可把图片文件拖进提示框。";
 #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
 const PASTE_LONG_HELP: &str = "\
-Pastes clipboard images into the prompt as chips, and plain text as typed.\n\
-Use Ctrl+V for screenshots, browser \"Copy Image\", and file-manager image \
-copies.\n\
-You can also drag an image file into the prompt.";
+将剪贴板中的图片粘贴为提示芯片，纯文本按普通输入粘贴。\n\
+用 Ctrl+V 粘贴截图、浏览器「复制图片」或文件管理器中的图片。\n\
+也可把图片文件拖进提示框。";
 
 /// Build the entries vector for the modal, grouped by category.
 ///
@@ -254,8 +252,8 @@ pub fn build_entries(
         // Scrollback search (`/`) has no registered ActionDef yet — vim-only,
         // handled inline; surface it here for discoverability.
         if vim_mode && cat == Category::ConversationNav {
-            let mut item = HintItem::new(crate::key!('/'), "search");
-            item.description = Some("Search scrollback".into());
+            let mut item = HintItem::new(crate::key!('/'), "搜索");
+            item.description = Some("搜索回滚记录".into());
             let dimmed = !active_contexts.contains(&When::ScrollbackFocused);
             entries.push(ShortcutsHelpEntry::Hint {
                 item,
@@ -268,8 +266,8 @@ pub fn build_entries(
         // Windows also Alt+V as a fallback. Super/Cmd omitted — many terminals
         // swallow it. Lit on the agent prompt and the dashboard (both paste).
         if cat == Category::Input {
-            let mut item = HintItem::new(crate::key!('v', CONTROL), "paste");
-            item.description = Some("Paste images (and text) from the clipboard".into());
+            let mut item = HintItem::new(crate::key!('v', CONTROL), "粘贴");
+            item.description = Some("从剪贴板粘贴图片（与文本）".into());
             #[cfg(target_os = "windows")]
             item.keys.push(crate::key!('v', ALT));
             let dimmed = !active_contexts.contains(&When::PromptFocused)
@@ -588,17 +586,17 @@ pub fn modal_footer_detail() -> Vec<crate::views::modal_window::Shortcut<'static
     use crate::views::modal_window::Shortcut;
     vec![
         Shortcut {
-            label: "Esc back",
+            label: "Esc 返回",
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "\u{2191}/\u{2193} scroll",
+            label: "\u{2191}/\u{2193} 滚动",
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "Ctrl+./X close",
+            label: "Ctrl+./X 关闭",
             clickable: false,
             id: 0,
         },
@@ -656,7 +654,7 @@ pub fn render_detail_body<'a>(
     if dimmed_note {
         lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
-            "(not active in current context)",
+            "（当前上下文中不可用）",
             Style::default().fg(theme.gray_dim),
         )));
     }
@@ -693,7 +691,7 @@ pub fn render_detail(
     };
     let footer = modal_footer_detail();
     let modal_config = mw::ModalWindowConfig {
-        title: "Keyboard Shortcuts",
+        title: "键盘快捷键",
         tabs: None,
         shortcuts: &footer,
         sizing: modal_sizing(compact),
@@ -1001,41 +999,41 @@ pub fn modal_footer(filter_active: bool) -> Vec<crate::views::modal_window::Shor
     use crate::views::modal_window::Shortcut;
     let mut shortcuts = vec![
         Shortcut {
-            label: "\u{2191}/\u{2193} nav",
+            label: "\u{2191}/\u{2193} 导航",
             clickable: false,
             id: 0,
         },
         Shortcut {
             label: if filter_active {
-                "f show all"
+                "f 显示全部"
             } else {
-                "f filter"
+                "f 筛选"
             },
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "e/Space/\u{2192} expand",
+            label: "e/Space/\u{2192} 展开",
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "\u{2190} collapse",
+            label: "\u{2190} 折叠",
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "Enter details",
+            label: "Enter 详情",
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "/ search",
+            label: "/ 搜索",
             clickable: false,
             id: 0,
         },
         Shortcut {
-            label: "Esc close",
+            label: "Esc 关闭",
             clickable: false,
             id: 0,
         },
@@ -1273,7 +1271,7 @@ pub fn render_modal(
     let non_sel: Vec<bool> = vec![false; picker_entries.len()];
     let footer = modal_footer(filter_active);
     let modal_config = mw::ModalWindowConfig {
-        title: "Keyboard Shortcuts",
+        title: "键盘快捷键",
         tabs: None,
         shortcuts: &footer,
         sizing: modal_sizing(compact),
@@ -1394,7 +1392,7 @@ pub fn handle_modal_key(
         modal_footer(filter_active)
     };
     let chrome_cfg = mw::ModalWindowConfig {
-        title: "Keyboard Shortcuts",
+        title: "键盘快捷键",
         tabs: None,
         shortcuts: &footer,
         sizing: modal_sizing(compact),

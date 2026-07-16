@@ -11,7 +11,7 @@ use xai_acp_lib::AcpAgentGatewaySender as GatewaySender;
 use xai_file_utils::events::{Event, EventWriter, PermissionDecision};
 use xai_grok_tools::implementations::grok_build::web_fetch::domain_from_url;
 
-const REJECT_ONCE_LABEL: &str = "No, and tell Grok what to do differently";
+const REJECT_ONCE_LABEL: &str = "否，并告诉 Grok 该怎么改";
 
 /// Stable option id for the edit prompt's "Yes, allow all edits during this
 /// session" choice. Distinct from the generic `"always-allow"` id (used by
@@ -59,7 +59,7 @@ pub const ENABLE_ALWAYS_APPROVE_OPTION_ID: &str = "enable-always-approve";
 /// here (not at each construction site) so the label is identical across
 /// every permission prompt — edit, bash, MCP, web_fetch, fallback.
 const ENABLE_ALWAYS_APPROVE_LABEL: &str =
-    "Yes, and don't ask again for anything (always-approve mode)";
+    "是，且以后都不再询问（始终批准模式）";
 
 /// Build the "enable always-approve mode" option that is prepended to
 /// every TUI/Pager/Desktop permission prompt. See
@@ -379,7 +379,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new(ALLOW_EDITS_SESSION_OPTION_ID),
             acp::PermissionOption::new(
                 ALLOW_EDITS_SESSION_OPTION_ID,
-                "Yes, allow all edits during this session".to_owned(),
+                "是，本会话允许全部编辑".to_owned(),
                 acp::PermissionOptionKind::AllowAlways,
             ),
         );
@@ -387,7 +387,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("allow-once"),
             acp::PermissionOption::new(
                 "allow-once",
-                "Yes".to_owned(),
+                "是".to_owned(),
                 acp::PermissionOptionKind::AllowOnce,
             ),
         );
@@ -407,7 +407,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("allow-once"),
             acp::PermissionOption::new(
                 "allow-once",
-                "Yes, proceed".to_owned(),
+                "是，继续".to_owned(),
                 acp::PermissionOptionKind::AllowOnce,
             ),
         );
@@ -427,7 +427,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("always-allow"),
             acp::PermissionOption::new(
                 "always-allow",
-                "Yes, and don't ask again for bash commands".to_owned(),
+                "是，且不再询问 bash 命令".to_owned(),
                 acp::PermissionOptionKind::AllowAlways,
             ),
         );
@@ -435,7 +435,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("allow-once"),
             acp::PermissionOption::new(
                 "allow-once",
-                "Yes, proceed".to_owned(),
+                "是，继续".to_owned(),
                 acp::PermissionOptionKind::AllowOnce,
             ),
         );
@@ -451,7 +451,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("reject-always"),
             acp::PermissionOption::new(
                 "reject-always",
-                "No, and don't run bash commands".to_owned(),
+                "否，且不运行 bash 命令".to_owned(),
                 acp::PermissionOptionKind::RejectAlways,
             ),
         );
@@ -462,7 +462,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("always-allow"),
             acp::PermissionOption::new(
                 "always-allow",
-                "always allow".to_owned(),
+                "始终允许".to_owned(),
                 acp::PermissionOptionKind::AllowAlways,
             ),
         );
@@ -470,7 +470,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("allow-once"),
             acp::PermissionOption::new(
                 "allow-once",
-                "allow once".to_owned(),
+                "允许一次".to_owned(),
                 acp::PermissionOptionKind::AllowOnce,
             ),
         );
@@ -478,7 +478,7 @@ impl AcpPrompter {
             acp::PermissionOptionId::new("reject-once"),
             acp::PermissionOption::new(
                 "reject-once",
-                "reject once".to_owned(),
+                "拒绝一次".to_owned(),
                 acp::PermissionOptionKind::RejectOnce,
             ),
         );
@@ -606,7 +606,7 @@ impl AcpPrompter {
                         if let Some(primary_command) = &primary_command {
                             let (id, option) = bash_scope_option(
                                 "reject-always-command",
-                                "Never allow:",
+                                "永不允许：",
                                 acp::PermissionOptionKind::RejectAlways,
                                 primary_command,
                             );
@@ -627,7 +627,7 @@ impl AcpPrompter {
             AccessKind::WebFetch(url) => {
                 // Unreachable in practice: the manager rejects unparseable URLs
                 // before prompting. Fallback exists only as defensive code.
-                let domain = domain_from_url(url).unwrap_or_else(|| "unknown domain".to_string());
+                let domain = domain_from_url(url).unwrap_or_else(|| "未知域名".to_string());
 
                 let mut options: IndexMap<acp::PermissionOptionId, acp::PermissionOption> =
                     IndexMap::new();
@@ -635,7 +635,7 @@ impl AcpPrompter {
                     acp::PermissionOptionId::new("allow-always-domain"),
                     acp::PermissionOption::new(
                         "allow-always-domain",
-                        format!("Yes, always allow {domain} this session"),
+                        format!("是，本会话始终允许 {domain}"),
                         acp::PermissionOptionKind::AllowAlways,
                     ),
                 );
@@ -643,7 +643,7 @@ impl AcpPrompter {
                     acp::PermissionOptionId::new("allow-once"),
                     acp::PermissionOption::new(
                         "allow-once",
-                        "Yes, allow once".to_owned(),
+                        "是，允许一次".to_owned(),
                         acp::PermissionOptionKind::AllowOnce,
                     ),
                 );
@@ -693,7 +693,7 @@ impl AcpPrompter {
                             acp::PermissionOptionId::new("allow-once"),
                             acp::PermissionOption::new(
                                 "allow-once",
-                                "Yes".to_owned(),
+                                "是".to_owned(),
                                 acp::PermissionOptionKind::AllowOnce,
                             ),
                         );
