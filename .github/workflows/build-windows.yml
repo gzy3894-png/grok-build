@@ -30,11 +30,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          version: "25.x"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      # Do NOT use repo bin/protoc (dotslash wrapper; not a Win32 PE).
+      # Install a real protoc zip and point PROTOC at the .exe.
+      - name: Install protoc (Windows zip)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $ver = "29.3"
+          $zip = "protoc-$ver-win64.zip"
+          $url = "https://github.com/protocolbuffers/protobuf/releases/download/v$ver/$zip"
+          $dest = Join-Path $env:RUNNER_TEMP "protoc"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          $zipPath = Join-Path $env:RUNNER_TEMP $zip
+          Invoke-WebRequest -Uri $url -OutFile $zipPath
+          Expand-Archive -Path $zipPath -DestinationPath $dest -Force
+          $exe = Join-Path $dest "bin\protoc.exe"
+          if (-not (Test-Path $exe)) { throw "protoc.exe missing after extract" }
+          & $exe --version
+          "PROTOC=$exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "PATH=$dest\bin;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -48,15 +62,24 @@ jobs:
           cache-on-failure: true
 
       - name: Release build (pager bin)
-        shell: bash
+        shell: pwsh
         run: |
-          set -euo pipefail
-          export PROTOC="$(command -v protoc || true)"
-          if [[ -z "${PROTOC}" && -x bin/protoc ]]; then
-            export PROTOC="$PWD/bin/protoc"
-          fi
-          echo "PROTOC=${PROTOC:-<unset>}"
-          cargo build -p xai-grok-pager-bin --release
+          $ErrorActionPreference = "Stop"
+          Write-Host "PROTOC=$env:PROTOC"
+          if (-not $env:PROTOC -or -not (Test-Path $env:PROTOC)) {
+            throw "PROTOC not set to a real protoc.exe"
+          }
+          # Hide the repo's non-Windows bin/protoc so build scripts don't pick it.
+          if (Test-Path "bin/protoc") {
+            Rename-Item "bin/protoc" "protoc.dotslash.bak"
+          }
+          try {
+            cargo build -p xai-grok-pager-bin --release
+          } finally {
+            if (Test-Path "bin/protoc.dotslash.bak") {
+              Rename-Item "bin/protoc.dotslash.bak" "protoc"
+            }
+          }
 
       - name: Stage artifact
         shell: pwsh
