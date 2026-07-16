@@ -1,4 +1,8 @@
-//! `/dashboard` — 打开代理仪表盘 — 全屏查看所有运行中的会话"attach to subagent",
+//! `/dashboard` — open the Agent Dashboard view.
+//!
+//! Centralised overview of every running session (top-level + subagents)
+//! with peek, attach, and dispatch from one screen. The dashboard reuses
+//! the existing fullscreen subagent takeover for "attach to subagent",
 //! so attaching never bypasses `active_subagent`.
 //!
 //! Same `Action`-only run path as other session-less commands, no args.
@@ -15,7 +19,12 @@
 use crate::app::actions::Action;
 use crate::slash::command::{AppCtx, CommandExecCtx, CommandResult, SlashCommand};
 
-/// 打开代理仪表盘 — 全屏查看所有运行中的会话"dashboard"
+/// Open the Agent Dashboard view.
+pub struct DashboardCommand;
+
+impl SlashCommand for DashboardCommand {
+    fn name(&self) -> &str {
+        "dashboard"
     }
 
     /// `/agents-dashboard` is registered as an alias. The canonical
