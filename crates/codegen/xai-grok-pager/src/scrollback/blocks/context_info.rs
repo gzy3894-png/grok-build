@@ -374,14 +374,14 @@ impl ContextInfoBlock {
             LegendRow {
                 glyph: system_glyph,
                 color: system_color,
-                label: "System prompt".to_string(),
+                label: "系统提示".to_string(),
                 tokens: system_tokens,
                 detail: None,
             },
             LegendRow {
                 glyph: messages_glyph,
                 color: messages_color,
-                label: "Messages".to_string(),
+                label: "消息".to_string(),
                 tokens: message_tokens,
                 detail: None,
             },
@@ -390,7 +390,7 @@ impl ContextInfoBlock {
             legend_rows.push(LegendRow {
                 glyph: overhead_glyph,
                 color: overhead_color,
-                label: "Reasoning/overhead".to_string(),
+                label: "推理/开销".to_string(),
                 tokens: overhead_tokens,
                 detail: None,
             });
@@ -398,14 +398,14 @@ impl ContextInfoBlock {
         legend_rows.push(LegendRow {
             glyph: free_glyph,
             color: empty_color,
-            label: "Free".to_string(),
+            label: "空闲".to_string(),
             tokens: free_tokens,
             detail: None,
         });
         let info_rows: Vec<LegendRow> = std::iter::once(LegendRow {
             glyph: tools_glyph,
             color: tools_color,
-            label: "Tool definitions".to_string(),
+            label: "工具定义".to_string(),
             tokens: tool_tokens,
             detail: Some(count_detail(tool_count, "tool")),
         })
@@ -422,7 +422,7 @@ impl ContextInfoBlock {
 
         let mut lines: Vec<Line<'static>> = vec![
             // Header: bold white "Context"
-            Line::from(Span::styled("Context", primary)),
+            Line::from(Span::styled("上下文", primary)),
             // Blank row between header and the at-a-glance summary
             Line::from(""),
             // Sub-header: token totals + percent. Uses `text_secondary` for
@@ -481,7 +481,7 @@ impl ContextInfoBlock {
             let remaining = threshold_tokens.saturating_sub(used);
             let (text, style) = if usage_pct >= threshold_percent {
                 (
-                    format!("Auto-compact triggers next turn (at {threshold_percent}%)"),
+                    format!("下次回合将自动压缩（阈值 {threshold_percent}%）"),
                     Style::default().fg(quantize(theme.warning)),
                 )
             } else {
@@ -491,7 +491,7 @@ impl ContextInfoBlock {
                 // `~1000k tokens remaining`.
                 (
                     format!(
-                        "Auto-compact at {threshold_percent}% \u{00b7} ~{} tokens remaining",
+                        "自动压缩阈值 {threshold_percent}% \u{00b7} 约剩 {} tokens",
                         fmt_tok_big(remaining)
                     ),
                     muted,
@@ -504,7 +504,7 @@ impl ContextInfoBlock {
         // Footer stats
         lines.push(Line::from(Span::styled(
             format!(
-                "Turns: {turn_count} \u{00b7} Tool calls: {tool_call_count} \u{00b7} Compactions: {compaction_count}"
+                "回合: {turn_count} \u{00b7} 工具调用: {tool_call_count} \u{00b7} 压缩次数: {compaction_count}"
             ),
             muted,
         )));
@@ -518,7 +518,7 @@ impl ContextInfoBlock {
         if (80..snapshot.auto_compact_threshold_percent).contains(&usage_pct) {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
-                "Tip: run /compact to free up context space.".to_string(),
+                "提示：运行 /compact 可释放上下文空间。".to_string(),
                 Style::default().fg(quantize(theme.warning)),
             )));
         }

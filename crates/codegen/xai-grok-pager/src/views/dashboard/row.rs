@@ -11,7 +11,7 @@ use std::time::{Instant, SystemTime};
 /// Title prefix for a session that has no name / generated title / prompt
 /// yet. The renderer paints this part in the primary colour and the trailing
 /// ` #<id>` suffix in dim gray (see `render::render_row`).
-pub(crate) const NEW_SESSION_LABEL: &str = "New session";
+pub(crate) const NEW_SESSION_LABEL: &str = "新会话";
 /// A single row in the dashboard. Built per-frame from `app.agents`.
 #[derive(Debug, Clone)]
 pub struct DashboardRow {

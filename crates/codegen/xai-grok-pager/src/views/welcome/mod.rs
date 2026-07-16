@@ -686,7 +686,7 @@ pub fn render_welcome(
         AuthState::Pending { error } => {
             let label = params.login_label.unwrap_or("grok.com");
             let login_text = format!("Login with {}", label);
-            let menu = [("l", login_text.as_str()), ("q", "Quit")];
+            let menu = [("l", login_text.as_str()), ("q", "退出")];
             let msg = error.as_deref().map(|e| (e, theme.accent_error));
             let info = PromptInfo {
                 model_name: params.model_name,
@@ -755,7 +755,7 @@ pub fn render_welcome(
             }
         }
         AuthState::Done if params.is_zdr_blocked => {
-            let menu = [("l", "Switch account"), ("q", "Quit")];
+            let menu = [("l", "切换账号"), ("q", "退出")];
             let (menu_rects, post_flush_escapes) = render_welcome_blocked(
                 content_area,
                 buf,
@@ -1706,7 +1706,7 @@ fn render_welcome_done(
     let gate_menu;
     let owned_menu;
     let menu_items: &[(&str, &str)] = if !p.has_access {
-        gate_menu = [(key_g, cta), (key_l, "Logout"), (key_q, "Quit")];
+        gate_menu = [(key_g, cta), (key_l, "登出"), (key_q, "退出")];
         &gate_menu
     } else {
         let (key_w, key_s, key_q, key_i_with_x) = (
@@ -1724,15 +1724,15 @@ fn render_welcome_done(
             // 3 cells of this row as dismiss instead of open. Keyboard:
             // ctrl-shift-i. The key string is right-aligned by render_menu,
             // so [x] sits at the very end of the row.
-            items.push((key_i_with_x, "Import Claude settings"));
+            items.push((key_i_with_x, "导入 Claude 设置"));
         }
-        items.push((key_w, "New worktree"));
-        items.push((key_s, "Resume session"));
+        items.push((key_w, "新建 worktree"));
+        items.push((key_s, "恢复会话"));
         // "Changelog" above Quit; no shortcut — opened by click (row or block).
         if show_changelog_action {
-            items.push(("", "Changelog"));
+            items.push(("", "更新日志"));
         }
-        items.push((key_q, "Quit"));
+        items.push((key_q, "退出"));
         owned_menu = items;
         owned_menu.as_slice()
     };

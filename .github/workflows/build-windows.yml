@@ -1,0 +1,84 @@
+# Build Windows release of Grok Build TUI for personal fork use.
+# No local compile required — download the artifact after CI finishes.
+
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ui-zh
+      - main
+    paths:
+      - "crates/codegen/xai-grok-pager/**"
+      - "crates/codegen/xai-grok-pager-bin/**"
+      - "crates/codegen/xai-grok-shell/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - ".github/workflows/build-windows.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: windows-release
+    runs-on: windows-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.92.0"
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: grok-build-windows
+          cache-on-failure: true
+
+      - name: Release build (pager bin)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PROTOC="$(command -v protoc || true)"
+          if [[ -z "${PROTOC}" && -x bin/protoc ]]; then
+            export PROTOC="$PWD/bin/protoc"
+          fi
+          echo "PROTOC=${PROTOC:-<unset>}"
+          cargo build -p xai-grok-pager-bin --release
+
+      - name: Stage artifact
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $src = "target/release/xai-grok-pager.exe"
+          if (-not (Test-Path $src)) {
+            Get-ChildItem target/release -Filter *.exe | Select-Object Name, Length
+            throw "missing $src"
+          }
+          Copy-Item $src dist/grok-app.exe
+          Copy-Item $src dist/xai-grok-pager.exe
+          Get-FileHash dist/grok-app.exe -Algorithm SHA256 | Format-List
+          Get-Item dist/* | Format-Table Name, Length
+
+      - name: Upload Windows binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: grok-windows-x64
+          path: |
+            dist/grok-app.exe
+            dist/xai-grok-pager.exe
+          if-no-files-found: error
+          retention-days: 14

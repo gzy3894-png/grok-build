@@ -90,7 +90,7 @@ fn hooks_count_spans(success: usize, failed: usize) -> Option<Vec<Span<'static>>
         return None;
     }
     let theme = Theme::current();
-    let mut spans = vec![Span::styled("  [hooks: ", theme.muted())];
+    let mut spans = vec![Span::styled("  [钩子: ", theme.muted())];
     if success > 0 {
         spans.push(Span::styled(
             format!("{}", success),

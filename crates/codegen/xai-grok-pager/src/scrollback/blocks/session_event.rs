@@ -145,15 +145,15 @@ impl SessionEvent {
             SessionEvent::TurnCompleted {
                 elapsed: Some(elapsed),
             } => {
-                format!("Worked for {}.", format_duration(*elapsed))
+                format!("耗时 {}。", format_duration(*elapsed))
             }
-            SessionEvent::TurnCompleted { elapsed: None } => "Turn completed.".to_string(),
+            SessionEvent::TurnCompleted { elapsed: None } => "回合完成。".to_string(),
             SessionEvent::TurnCancelled { elapsed } => {
-                format!("Turn cancelled by user in {}.", format_duration(*elapsed))
+                format!("用户在 {} 后取消了回合。", format_duration(*elapsed))
             }
             SessionEvent::TurnHalted { elapsed } => {
                 format!(
-                    "Agent was unable to make progress \u{2014} turn ended in {}.",
+                    "代理无法继续推进 \u{2014} 回合在 {} 后结束。",
                     format_duration(*elapsed)
                 )
             }
@@ -161,16 +161,16 @@ impl SessionEvent {
                 error,
                 elapsed: Some(elapsed),
             } => {
-                format!("Turn failed in {}: {error}", format_duration(*elapsed))
+                format!("回合在 {} 后失败：{error}", format_duration(*elapsed))
             }
             SessionEvent::TurnFailed {
                 error,
                 elapsed: None,
             } => {
-                format!("Turn failed: {error}")
+                format!("回合失败：{error}")
             }
             SessionEvent::CompactionStarted { percentage } => {
-                format!("Context {percentage}% full. Compacting…")
+                format!("上下文已用 {percentage}%。正在压缩…")
             }
             SessionEvent::CompactionCompleted {
                 tokens_before,
@@ -182,11 +182,11 @@ impl SessionEvent {
                 let body = match tokens_before {
                     Some(before) if *before > 0 => {
                         format!(
-                            "Context compacted: {} → {after} tokens",
+                            "上下文已压缩：{} → {after} tokens",
                             format_tokens(*before)
                         )
                     }
-                    _ => format!("Context compacted → {after} tokens"),
+                    _ => format!("上下文已压缩 → {after} tokens"),
                 };
                 if let Some(ms) = elapsed_ms {
                     let secs = *ms as f64 / 1000.0;
@@ -197,34 +197,30 @@ impl SessionEvent {
             }
             SessionEvent::CompactionFailed { error } => {
                 if error.trim().is_empty() {
-                    "Compaction failed.".to_string()
+                    "压缩失败。".to_string()
                 } else {
-                    format!("Compaction failed: {error}")
+                    format!("压缩失败：{error}")
                 }
             }
-            SessionEvent::CompactionCancelled => "Compaction cancelled.".to_string(),
+            SessionEvent::CompactionCancelled => "压缩已取消。".to_string(),
             SessionEvent::RetryFailed { error, error_type } => {
                 if error_type.as_deref() == Some("encrypted_content_mismatch") {
-                    "This session's conversation history is incompatible with the \
-                     current model. Please start a new session."
+                    "此会话的对话历史与当前模型不兼容。请开始新会话。"
                         .to_string()
                 } else {
-                    format!("Retry failed: {error}")
+                    format!("重试失败：{error}")
                 }
             }
             SessionEvent::ReAuthRequired => {
-                "Authentication required \u{2014} your session has expired or your \
-                 credentials were rejected. Run /login to re-authenticate, then resend \
-                 your message."
+                "需要重新登录 \u{2014} 会话已过期或凭据被拒绝。运行 /login 重新认证，然后重新发送消息。"
                     .to_string()
             }
             SessionEvent::ContextTooLarge => {
-                "This conversation is too large for the model's context window. \
-                 Use /new to start a new session."
+                "此对话已超出模型上下文窗口。使用 /new 开始新会话。"
                     .to_string()
             }
             SessionEvent::CompactCompleted { elapsed } => {
-                format!("Compaction completed in {}.", format_duration(*elapsed))
+                format!("压缩完成，耗时 {}。", format_duration(*elapsed))
             }
             SessionEvent::HookAnnotation { message } => message.clone(),
             SessionEvent::ModelUnavailable {
@@ -235,22 +231,22 @@ impl SessionEvent {
                 if new_model_id.is_empty() {
                     reason.clone()
                 } else {
-                    format!("{reason} Switched to \"{new_model_id}\".")
+                    format!("{reason} 已切换到 \"{new_model_id}\"。")
                 }
             }
             SessionEvent::MemorySaved { path, trigger } => {
                 let short_path = crate::util::abbreviate_path(path);
-                format!("Memory saved ({trigger}) \u{2192} {short_path}  \u{00b7}  /memory to view")
+                format!("记忆已保存 ({trigger}) \u{2192} {short_path}  \u{00b7}  /memory 查看")
             }
             SessionEvent::GoalCompleted { elapsed } => {
                 format!(
-                    "Goal complete \u{2014} {} end-to-end.",
+                    "目标完成 \u{2014} 全程 {}。",
                     format_duration(*elapsed)
                 )
             }
             SessionEvent::Recap { summary, auto: _ } => {
                 // Always "Recap —" (manual `/recap` and auto return-from-away).
-                format!("Recap \u{2014} {summary}")
+                format!("回顾 \u{2014} {summary}")
             }
         }
     }
@@ -330,14 +326,13 @@ impl EndWork {
         let count = |n: usize, noun: &str| -> Option<String> {
             match n {
                 0 => None,
-                1 => Some(format!("1 {noun}")),
-                n => Some(format!("{n} {noun}s")),
+                n => Some(format!("{n} 个{noun}")),
             }
         };
         let parts: Vec<String> = [
-            count(self.running_commands, "command"),
-            count(self.running_monitors, "monitor"),
-            count(self.running_subagents, "subagent"),
+            count(self.running_commands, "命令"),
+            count(self.running_monitors, "监视器"),
+            count(self.running_subagents, "子代理"),
         ]
         .into_iter()
         .flatten()
@@ -346,9 +341,9 @@ impl EndWork {
         let joined = if head.is_empty() {
             last.clone()
         } else {
-            format!("{} and {last}", head.join(", "))
+            format!("{}和{last}", head.join("、"))
         };
-        Some(format!("{joined} still running."))
+        Some(format!("{joined}仍在运行。"))
     }
 }
 

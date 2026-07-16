@@ -132,26 +132,15 @@ fn watching_label(watchers: Watchers) -> String {
     use std::fmt::Write as _;
     // "watching" stem, then " · N noun" appended for each non-zero kind.
     let mut label = String::with_capacity(32);
-    label.push_str("watching");
+    label.push_str("监视中");
     if watchers.monitors > 0 {
-        let noun = if watchers.monitors == 1 {
-            "monitor"
-        } else {
-            "monitors"
-        };
-        let _ = write!(label, " \u{00b7} {} {noun}", watchers.monitors);
+        let _ = write!(label, " \u{00b7} {} 个监视器", watchers.monitors);
     }
     if watchers.loops > 0 {
-        let noun = if watchers.loops == 1 { "loop" } else { "loops" };
-        let _ = write!(label, " \u{00b7} {} {noun}", watchers.loops);
+        let _ = write!(label, " \u{00b7} {} 个循环", watchers.loops);
     }
     if watchers.subagents > 0 {
-        let noun = if watchers.subagents == 1 {
-            "subagent"
-        } else {
-            "subagents"
-        };
-        let _ = write!(label, " \u{00b7} {} {noun}", watchers.subagents);
+        let _ = write!(label, " \u{00b7} {} 个子代理", watchers.subagents);
     }
     label
 }
@@ -255,7 +244,7 @@ pub fn render_turn_status(
                 Style::default().fg(diamond_color),
             ),
             Span::styled(
-                "agent idle ~ waiting on your edit",
+                "代理空闲 ~ 等待你完成编辑",
                 Style::default().fg(theme.gray),
             ),
         ];
@@ -327,7 +316,7 @@ pub fn render_turn_status(
     let show_bg = show_cancel && has_running_execute;
     let bg_str = if show_bg {
         if bg_hovered {
-            " [send to bg]"
+            " [转到后台]"
         } else {
             " [\u{2193}]"
         }
@@ -342,8 +331,8 @@ pub fn render_turn_status(
     // color (red on hover, see `cancel_style`), not by swapping the label.
     let cancel_str: &str = match (show_cancel, show_bg) {
         (false, _) => "",
-        (true, true) => "[stop]",
-        (true, false) => " [stop]",
+        (true, true) => "[停止]",
+        (true, false) => " [停止]",
     };
     let cancel_width = cancel_str.width();
 
@@ -440,7 +429,7 @@ pub fn render_turn_status(
                     .strip_prefix("Ask: ")
                     .or_else(|| title.strip_prefix("Ask "))
                     .unwrap_or(title.as_str());
-                let msg = format!("Waiting on answers for {detail}");
+                let msg = format!("等待回答：{detail}");
                 let display = truncate_str(&msg, available_for_label);
                 left_spans.push(Span::styled(display, activity_style));
             } else if let Some(desc) = description
@@ -457,7 +446,7 @@ pub fn render_turn_status(
                 left_spans.push(Span::styled(display, activity_style));
             } else if let Some(query) = title.strip_prefix("Web search: ") {
                 // Web search: "Search " (muted) + query (yellow)
-                let prefix = "Search ";
+                let prefix = "搜索 ";
                 let prefix_width = prefix.width();
                 let query = query.trim_matches('"');
                 let max_query = available_for_label.saturating_sub(prefix_width).max(5);
@@ -466,7 +455,7 @@ pub fn render_turn_status(
                 left_spans.push(Span::styled(display, Style::default().fg(theme.command)));
             } else if let Some(url) = title.strip_prefix("Fetch: ") {
                 // Fetch tools: "Fetch " (muted) + URL (yellow)
-                let prefix = "Fetch ";
+                let prefix = "抓取 ";
                 let prefix_width = prefix.width();
                 let max_url = available_for_label.saturating_sub(prefix_width).max(5);
                 let display = truncate_str(url, max_url);
@@ -479,7 +468,7 @@ pub fn render_turn_status(
                 // `(Server) Action` so the spinner doesn't show the ugly
                 // delimiter form. Non-MCP titles (bash commands etc.) are
                 // returned untouched by `mcp_pretty_name_if_qualified`.
-                let prefix = "Run ";
+                let prefix = "运行 ";
                 let pretty = mcp_pretty_name_if_qualified(title.as_str());
                 let detail = pretty.as_str();
                 let prefix_width = prefix.width();
@@ -500,9 +489,9 @@ pub fn render_turn_status(
         // toast — see `AgentView::held_queue_top_sendable`).
         let suffix = if held_queue > 0 && is_sendable_wait(activity) {
             if held_queue_top_sendable {
-                format!(" · {held_queue} queued — Enter to send now")
+                format!(" · {held_queue} 条排队 — Enter 立即发送")
             } else {
-                format!(" · {held_queue} queued")
+                format!(" · {held_queue} 条排队")
             }
         } else {
             String::new()
@@ -597,7 +586,7 @@ fn compute_activity(
     match (state, activity) {
         (AgentState::TurnCancelling | AgentState::CommandCancelling { .. }, _) => (
             Style::default().fg(theme.accent_error),
-            "Cancelling…".to_string(),
+            "正在取消…".to_string(),
             false,
         ),
         // Goal-mode completion verification runs in-turn after the model
@@ -608,17 +597,17 @@ fn compute_activity(
         // model responding (or a hung "Waiting…").
         (AgentState::TurnRunning, _) if goal_verifying => (
             Style::default().fg(theme.text_secondary),
-            "Verifying…".to_string(),
+            "正在验证…".to_string(),
             false,
         ),
         (AgentState::TurnRunning, Some(TurnActivity::Thinking)) => (
             Style::default().fg(theme.text_secondary),
-            "Thinking…".to_string(),
+            "思考中…".to_string(),
             false,
         ),
         (AgentState::TurnRunning, Some(TurnActivity::Responding)) => (
             Style::default().fg(theme.text_secondary),
-            "Responding…".to_string(),
+            "回复中…".to_string(),
             false,
         ),
         (AgentState::TurnRunning, Some(TurnActivity::ToolRunning { title, description })) => {
@@ -641,12 +630,12 @@ fn compute_activity(
         }
         (AgentState::TurnRunning, Some(TurnActivity::AutoCompacting)) => (
             Style::default().fg(theme.text_secondary),
-            "Compacting…".to_string(),
+            "压缩中…".to_string(),
             false,
         ),
         (AgentState::TurnRunning, Some(TurnActivity::Retrying { attempt, .. })) => (
             Style::default().fg(theme.warning),
-            format!("Retrying (attempt {attempt})…"),
+            format!("重试中（第 {attempt} 次）…"),
             false,
         ),
         (AgentState::TurnRunning, Some(TurnActivity::Waiting(reason))) => (
@@ -660,7 +649,7 @@ fn compute_activity(
         (AgentState::TurnRunning, None) if is_bash_turn => (
             // Bash turn: not inference, show generic "Running…".
             Style::default().fg(theme.text_secondary),
-            "Running…".to_string(),
+            "运行中…".to_string(),
             false,
         ),
         (AgentState::TurnRunning, None) => (
@@ -668,7 +657,7 @@ fn compute_activity(
             // view resolves this gap into Waiting(Model/Subagent) before render,
             // so this is now a rarely-hit safety net.
             Style::default().fg(theme.text_secondary),
-            "Waiting…".to_string(),
+            "等待中…".to_string(),
             false,
         ),
         (
@@ -726,7 +715,7 @@ fn render_starting_session(
     let style = Style::default().fg(theme.gray_dim);
     let spans = vec![
         Span::styled(format!("{} ", frames[frame_idx]), style),
-        Span::styled("Starting session…", style),
+        Span::styled("正在启动会话…", style),
         Span::styled(timer_str, style),
     ];
     buf.set_line(area.x, area.y, &Line::from(spans), area.width);
