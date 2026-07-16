@@ -61,8 +61,14 @@ jobs:
           shared-key: grok-build-windows
           cache-on-failure: true
 
+      # Workspace [profile.release] keeps debug=1 + strip=false for Linux/macOS
+      # sidecars. On MSVC that blows past the PDB public-symbol limit (LNK4319).
       - name: Release build (pager bin)
         shell: pwsh
+        env:
+          CARGO_PROFILE_RELEASE_DEBUG: "0"
+          CARGO_PROFILE_RELEASE_STRIP: "true"
+          CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO: "off"
         run: |
           $ErrorActionPreference = "Stop"
           Write-Host "PROTOC=$env:PROTOC"
