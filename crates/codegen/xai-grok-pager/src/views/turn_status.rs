@@ -5,7 +5,7 @@
 //! - Spinner (left, slowed to ~7.5fps)
 //! - Activity label (colored per activity type, truncates if needed)
 //! - Phase timer `Xs` (gray, never truncates)
-//! - Queued-send hint `· N queued — Enter to send now` (gray, sendable waits only)
+//! - Queued-send hint `| N 条排队 — Enter 立即发送` (gray, sendable waits only)
 //! - Fill space
 //! - Turn timer `Xm Ys` and optional token count `⇣Nk` (right-aligned, gray)
 //! - Cancel button `[stop]` (right-aligned, red on hover)
@@ -26,6 +26,22 @@ use crate::app::agent::{AgentCommand, AgentState};
 use crate::app::agent_view::McpInitProgress;
 use crate::render::line_utils::truncate_str;
 use crate::theme::Theme;
+
+/// Separator between status segments.
+///
+/// Prefer ASCII `|` over U+00B7 MIDDLE DOT: the middot is East-Asian
+/// *ambiguous* width, and on Chinese Windows terminals (CJK fonts) it often
+/// renders double-wide while `unicode-width` still counts it as 1. That
+/// desync eats the first cell of the following CJK run — users see
+/// `具调用` / `个监视器` clipped instead of the full phrases.
+const SEP: &str = " | ";
+
+/// Pad after ambiguous-width glyphs (`◆`/`◇`/`○`/monitor pulse frames).
+///
+/// Those glyphs paint ~2 columns on many CJK fonts while unicode-width
+/// counts them as 1. Two trailing ASCII spaces absorb the overflow so the
+/// first CJK label char is not eaten (e.g. `代理空闲` → `闲`).
+const GLYPH_PAD: &str = "  ";
 
 /// Show each spinner frame for this many animation ticks.
 /// At ~30fps, 4 ticks = ~133ms per frame = ~7.5 spinner fps.
@@ -117,9 +133,9 @@ impl Watchers {
     }
 }
 
-/// Build the "watching · …" label for the idle watcher cue, listing only the
+/// Build the "监视中 | …" label for the idle watcher cue, listing only the
 /// non-zero kinds with correct singular/plural nouns — e.g.
-/// `"watching · 2 monitors · 1 loop · 1 subagent"`. Assumes
+/// `"监视中 | 2 个监视器 | 1 个循环 | 1 个子代理"`. Assumes
 /// `watchers.total() > 0`.
 ///
 /// Every scheduled task can wake the agent, so all of them are counted as
@@ -130,17 +146,17 @@ impl Watchers {
 /// static-`&str` right-side arms below).
 fn watching_label(watchers: Watchers) -> String {
     use std::fmt::Write as _;
-    // "watching" stem, then " · N noun" appended for each non-zero kind.
-    let mut label = String::with_capacity(32);
+    // "监视中" stem, then " | N 个…" appended for each non-zero kind.
+    let mut label = String::with_capacity(48);
     label.push_str("监视中");
     if watchers.monitors > 0 {
-        let _ = write!(label, " \u{00b7} {} 个监视器", watchers.monitors);
+        let _ = write!(label, "{SEP}{} 个监视器", watchers.monitors);
     }
     if watchers.loops > 0 {
-        let _ = write!(label, " \u{00b7} {} 个循环", watchers.loops);
+        let _ = write!(label, "{SEP}{} 个循环", watchers.loops);
     }
     if watchers.subagents > 0 {
-        let _ = write!(label, " \u{00b7} {} 个子代理", watchers.subagents);
+        let _ = write!(label, "{SEP}{} 个子代理", watchers.subagents);
     }
     label
 }
@@ -240,7 +256,7 @@ pub fn render_turn_status(
         let diamond_color = pending_diamond_color(&theme, theme.accent_user, tick);
         let spans = vec![
             Span::styled(
-                format!("{} ", crate::glyphs::diamond_filled()),
+                format!("{}{GLYPH_PAD}", crate::glyphs::diamond_filled()),
                 Style::default().fg(diamond_color),
             ),
             Span::styled(
@@ -267,7 +283,7 @@ pub fn render_turn_status(
         let frame_idx = (tick / MONITOR_PULSE_DIVISOR) as usize % frames.len();
         let spans = vec![
             Span::styled(
-                format!("{} ", frames[frame_idx]),
+                format!("{}{GLYPH_PAD}", frames[frame_idx]),
                 Style::default().fg(theme.accent_system),
             ),
             Span::styled(watching_label(watchers), Style::default().fg(theme.gray)),
@@ -344,10 +360,12 @@ pub fn render_turn_status(
     // shape the drain-blocked and plan-approval indicators already use,
     // so every "your turn" status reads with one consistent visual cue.
     let spinner_str = if is_pending_user_input {
-        format!("{} ", crate::glyphs::diamond_filled())
+        // Diamond is ambiguous-width on CJK fonts; double-pad before labels.
+        format!("{}{GLYPH_PAD}", crate::glyphs::diamond_filled())
     } else {
         let frames = crate::glyphs::braille_spinner_frames();
         let frame_idx = (tick / SPINNER_DIVISOR) as usize % frames.len();
+        // Braille frames are reliably single-width; one space is enough.
         format!("{} ", frames[frame_idx])
     };
     let spinner_width = spinner_str.width();
@@ -489,9 +507,11 @@ pub fn render_turn_status(
         // toast — see `AgentView::held_queue_top_sendable`).
         let suffix = if held_queue > 0 && is_sendable_wait(activity) {
             if held_queue_top_sendable {
-                format!(" · {held_queue} 条排队 — Enter 立即发送")
+                // ASCII SEP + en-dash avoid ambiguous-width middot/em-dash
+                // eating the first CJK cell of `条排队`.
+                format!("{SEP}{held_queue} 条排队 - Enter 立即发送")
             } else {
-                format!(" · {held_queue} 条排队")
+                format!("{SEP}{held_queue} 条排队")
             }
         } else {
             String::new()
@@ -1144,7 +1164,7 @@ mod tests {
     fn idle_with_monitors_renders_watching_line() {
         let text = render_idle_with_monitors(2);
         assert!(
-            text.contains("watching") && text.contains("2 monitors"),
+            text.contains("监视中") && text.contains("2 个监视器"),
             "idle with monitors must render the watching cue, got: {text:?}"
         );
     }
@@ -1153,8 +1173,8 @@ mod tests {
     fn idle_with_one_monitor_uses_singular() {
         let text = render_idle_with_monitors(1);
         assert!(
-            text.contains("watching \u{00b7} 1 monitor") && !text.contains("monitors"),
-            "single monitor must use the singular noun, got: {text:?}"
+            text.contains("监视中 | 1 个监视器"),
+            "single monitor must use the zh watching label, got: {text:?}"
         );
     }
 
@@ -1174,7 +1194,7 @@ mod tests {
             ..Watchers::default()
         });
         assert!(
-            text.contains("watching") && text.contains("2 loops"),
+            text.contains("监视中") && text.contains("2 个循环"),
             "idle with loops must render the watching cue, got: {text:?}"
         );
     }
@@ -1186,8 +1206,8 @@ mod tests {
             ..Watchers::default()
         });
         assert!(
-            text.contains("watching \u{00b7} 1 loop") && !text.contains("loops"),
-            "single loop must use the singular noun, got: {text:?}"
+            text.contains("监视中 | 1 个循环"),
+            "single loop must use the zh watching label, got: {text:?}"
         );
     }
 
@@ -1198,7 +1218,7 @@ mod tests {
             ..Watchers::default()
         });
         assert!(
-            text.contains("watching") && text.contains("2 subagents"),
+            text.contains("监视中") && text.contains("2 个子代理"),
             "idle with subagents must render the watching cue, got: {text:?}"
         );
     }
@@ -1210,22 +1230,22 @@ mod tests {
             ..Watchers::default()
         });
         assert!(
-            text.contains("watching \u{00b7} 1 subagent") && !text.contains("subagents"),
-            "single subagent must use the singular noun, got: {text:?}"
+            text.contains("监视中 | 1 个子代理"),
+            "single subagent must use the zh watching label, got: {text:?}"
         );
     }
 
     #[test]
     fn idle_with_monitors_and_loops_lists_both() {
         // Both watcher kinds present → one cue lists monitors then loops,
-        // each with its own count, joined by the middle-dot separator.
+        // each with its own count, joined by the ASCII `|` separator.
         let text = render_idle_with_watchers(Watchers {
             monitors: 1,
             loops: 2,
             ..Watchers::default()
         });
         assert!(
-            text.contains("watching \u{00b7} 1 monitor \u{00b7} 2 loops"),
+            text.contains("监视中 | 1 个监视器 | 2 个循环"),
             "both kinds must be listed in one cue, got: {text:?}"
         );
     }
@@ -1233,14 +1253,14 @@ mod tests {
     #[test]
     fn idle_with_all_watcher_kinds_lists_all() {
         // Monitors, loops, and subagents present → one cue lists all three in
-        // order (monitors → loops → subagents), middle-dot separated.
+        // order (monitors → loops → subagents), ASCII-`|` separated.
         let text = render_idle_with_watchers(Watchers {
             monitors: 2,
             loops: 1,
             subagents: 3,
         });
         assert!(
-            text.contains("watching \u{00b7} 2 monitors \u{00b7} 1 loop \u{00b7} 3 subagents"),
+            text.contains("监视中 | 2 个监视器 | 1 个循环 | 3 个子代理"),
             "all kinds must be listed in one cue, got: {text:?}"
         );
     }
@@ -1281,7 +1301,9 @@ mod tests {
         );
         let text = buffer_text(&buf, area);
         assert!(
-            text.contains("Waiting on subagent… 5m59s · 1 queued — Enter to send now"),
+            text.contains("等待子代理")
+                && text.contains("5m59s")
+                && text.contains("| 1 条排队 - Enter 立即发送"),
             "phase timer must sit between the wait label and the queued hint, got: {text:?}"
         );
     }
@@ -1293,21 +1315,21 @@ mod tests {
                 monitors: 2,
                 ..Watchers::default()
             }),
-            "watching \u{00b7} 2 monitors"
+            "监视中 | 2 个监视器"
         );
         assert_eq!(
             watching_label(Watchers {
                 loops: 1,
                 ..Watchers::default()
             }),
-            "watching \u{00b7} 1 loop"
+            "监视中 | 1 个循环"
         );
         assert_eq!(
             watching_label(Watchers {
                 subagents: 1,
                 ..Watchers::default()
             }),
-            "watching \u{00b7} 1 subagent"
+            "监视中 | 1 个子代理"
         );
         assert_eq!(
             watching_label(Watchers {
@@ -1315,7 +1337,7 @@ mod tests {
                 loops: 2,
                 ..Watchers::default()
             }),
-            "watching \u{00b7} 1 monitor \u{00b7} 2 loops"
+            "监视中 | 1 个监视器 | 2 个循环"
         );
         assert_eq!(
             watching_label(Watchers {
@@ -1323,7 +1345,7 @@ mod tests {
                 loops: 1,
                 subagents: 2,
             }),
-            "watching \u{00b7} 1 monitor \u{00b7} 1 loop \u{00b7} 2 subagents"
+            "监视中 | 1 个监视器 | 1 个循环 | 2 个子代理"
         );
     }
 

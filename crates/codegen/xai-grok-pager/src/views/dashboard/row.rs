@@ -1920,7 +1920,7 @@ mod tests {
             .insert("m1".into(), running_bg_task("m1", true));
         assert_eq!(classify_top_level(&agent), RowState::Working);
         let row = top_level_row(AgentId(0), &agent, false, false, None);
-        assert_eq!(row.activity.as_deref(), Some("watching · 1 monitor"));
+        assert_eq!(row.activity.as_deref(), Some("监视中 | 1 监视器"));
     }
     /// An active scheduled `/loop` keeps the agent `Working` even with a
     /// fully idle turn, labelled as a loop.
@@ -1933,7 +1933,7 @@ mod tests {
             .insert("l1".into(), scheduled_loop("l1"));
         assert_eq!(classify_top_level(&agent), RowState::Working);
         let row = top_level_row(AgentId(0), &agent, false, false, None);
-        assert_eq!(row.activity.as_deref(), Some("watching · 1 loop"));
+        assert_eq!(row.activity.as_deref(), Some("监视中 | 1 循环"));
     }
     /// The background-work label lists every non-zero kind (monitors,
     /// then loops, then plain tasks) with correct singular/plural nouns.
@@ -1960,7 +1960,7 @@ mod tests {
         let row = top_level_row(AgentId(0), &agent, false, false, None);
         assert_eq!(
             row.activity.as_deref(),
-            Some("watching · 1 monitor · 1 loop · 2 tasks"),
+            Some("监视中 | 1 监视器 | 1 循环 | 2 任务"),
         );
     }
     /// The background-work label is the LAST activity fallback: a more

@@ -214,6 +214,51 @@ pub fn diamond_hollow_char() -> char {
     diamond_hollow().chars().next().unwrap_or('\u{25C7}')
 }
 
+/// Columns to **reserve** when laying out chrome after a glyph, for CJK-safe TUI.
+///
+/// [`unicode_width`] reports width 1 for many East-Asian *ambiguous* symbols
+/// (`◆`/`◇`/`○`/`·`/…), but Chinese Windows fonts commonly paint them
+/// double-wide. Layout that advances only 1 column then places CJK text in
+/// the glyph's overflow cell — users see the first Han character eaten
+/// (`空闲`→`闲`, `始终批准`→`终批准`).
+///
+/// Use this for marker/icon **layout** (cursor advance, content start).
+/// Braille and ASCII spinners stay at measured width 1.
+pub fn glyph_layout_cols(glyph: &str) -> usize {
+    use unicode_width::UnicodeWidthStr;
+    let measured = UnicodeWidthStr::width(glyph);
+    let Some(c) = glyph.chars().next() else {
+        return measured;
+    };
+    // Only single-codepoint chrome markers; multi-char sequences keep measured.
+    if glyph.chars().count() != 1 {
+        return measured;
+    }
+    match c {
+        // Middot / bullets / geometric shapes used as status markers.
+        '\u{00B7}' // ·
+        | '\u{2022}' // •
+        | '\u{25CB}' // ○
+        | '\u{25CF}' // ●
+        | '\u{25C6}' // ◆
+        | '\u{25C7}' // ◇
+        | '\u{25C8}' // ◈
+        | '\u{25C9}' // ◉
+        | '\u{25CE}' // ◎
+        | '\u{25E6}' // ◦
+        | '\u{25EF}' // ◯
+        | '\u{2666}' // ♦ (legacy ConHost diamond)
+        | '\u{25A0}' // ■
+        | '\u{25A1}' // □
+        | '\u{25B8}' // ▸
+        | '\u{25BE}' // ▾
+        | '\u{25B6}' // ▶
+        | '\u{25BC}' // ▼
+        => measured.max(2),
+        _ => measured,
+    }
+}
+
 /// Rotating braille progress-spinner frames (`⠋⠙⠹⠸⠼⠴⠦⠧`) normally; a
 /// 1-column ASCII spinner (`|`, `/`, `-`, `\`) on legacy ConHost.
 ///
@@ -626,6 +671,30 @@ mod tests {
                 "fallback {fallback:?} must be 1 column"
             );
         }
+    }
+
+    /// Layout reservation for ambiguous markers is at least 2 so CJK text
+    /// after them is not clipped on Chinese Windows fonts. Measured
+    /// unicode-width stays 1 (see `diamond_variants_are_one_column`).
+    #[test]
+    fn ambiguous_markers_reserve_two_layout_cols() {
+        for g in [
+            "\u{25C6}", // ◆
+            "\u{25C7}", // ◇
+            "\u{25C8}", // ◈
+            "\u{25CB}", // ○
+            "\u{00B7}", // ·
+            "\u{2666}", // ♦
+        ] {
+            assert!(
+                glyph_layout_cols(g) >= 2,
+                "layout cols for {g:?} must be >= 2, got {}",
+                glyph_layout_cols(g)
+            );
+        }
+        // Braille spinner frame stays single-column for layout.
+        assert_eq!(glyph_layout_cols("\u{280b}"), 1);
+        assert_eq!(glyph_layout_cols("|"), 1);
     }
 
     // Each chrome glyph and its legacy fallback must be exactly one column

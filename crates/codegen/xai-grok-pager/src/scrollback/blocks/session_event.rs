@@ -236,7 +236,8 @@ impl SessionEvent {
             }
             SessionEvent::MemorySaved { path, trigger } => {
                 let short_path = crate::util::abbreviate_path(path);
-                format!("记忆已保存 ({trigger}) \u{2192} {short_path}  \u{00b7}  /memory 查看")
+                // ASCII `|` not U+00B7: ambiguous middot eats following CJK on Windows.
+                format!("记忆已保存 ({trigger}) \u{2192} {short_path}  |  /memory 查看")
             }
             SessionEvent::GoalCompleted { elapsed } => {
                 format!(

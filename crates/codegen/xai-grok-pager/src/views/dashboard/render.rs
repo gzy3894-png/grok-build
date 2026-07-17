@@ -478,7 +478,7 @@ fn rename_cursor_pos(state: &DashboardState, rows: &[DashboardRow]) -> Option<(u
         .map(|r| {
             (
                 (r.indent as u16) * 2,
-                UnicodeWidthStr::width(state_icon(r.state, state.spinner_tick)) as u16,
+                crate::glyphs::glyph_layout_cols(state_icon(r.state, state.spinner_tick)) as u16,
             )
         })
         .unwrap_or((0, 1));
@@ -738,13 +738,20 @@ fn render_header(
     // leftmost in the chip group, where the eye lands first.
     let mut status = AgentStatusBar::new(theme);
     let chip = |glyph: &str, color: Color, count: usize, label: &'static str| {
+        // Double pad after ambiguous-width diamonds/circles so CJK labels
+        // (`空闲`/`工作中`) are not eaten on Chinese Windows fonts.
+        let pad = if crate::glyphs::glyph_layout_cols(glyph) >= 2 {
+            "  "
+        } else {
+            " "
+        };
         Line::from(vec![
             Span::styled(
                 glyph.to_string(),
                 Style::default().fg(color).bg(theme.bg_base),
             ),
             Span::styled(
-                format!(" {count} {label}"),
+                format!("{pad}{count} {label}"),
                 Style::default().fg(theme.gray).bg(theme.bg_base),
             ),
         ])
@@ -1848,7 +1855,7 @@ fn render_idle_overflow(
     // marker (1) + gap (1) + icon + gap (1); the Idle group is top-level,
     // so indent is 0.
     let indicator = if expanded { "-" } else { "+" };
-    let icon_w = unicode_width::UnicodeWidthStr::width(state_icon(RowState::Idle, 0)) as u16;
+    let icon_w = crate::glyphs::glyph_layout_cols(state_icon(RowState::Idle, 0)) as u16;
     let indicator_x = rect.x.saturating_add(2);
     let name_x = indicator_x.saturating_add(icon_w + 1);
     if indicator_x < rect.x + rect.width {
@@ -2036,7 +2043,10 @@ fn render_row(
     } else {
         state_color(row.state, theme)
     };
-    let icon_w = UnicodeWidthStr::width(icon) as u16;
+    // CJK-safe: diamonds/circles often paint 2 cols on Chinese Windows while
+    // unicode-width reports 1 — reserve the painted width so the title's
+    // first Han char is not clipped.
+    let icon_w = crate::glyphs::glyph_layout_cols(icon) as u16;
     // Title-row paint cursor (no leading 1-col gap before the marker
     // — the marker IS the leftmost cell, mirroring the wide-mode
     // header which starts flush-left at col 0).
@@ -2431,7 +2441,14 @@ fn render_narrow_rows(
             };
             let icon = state_icon(row.state, state.spinner_tick);
             let indent = "  ".repeat(row.indent as usize);
-            let chrome = format!("{marker} {indent}{icon} ");
+            // Extra trailing space when the state icon is ambiguous-width so
+            // the following CJK title is not painted into the glyph overflow.
+            let icon_gap = if crate::glyphs::glyph_layout_cols(icon) >= 2 {
+                "  "
+            } else {
+                " "
+            };
+            let chrome = format!("{marker} {indent}{icon}{icon_gap}");
             let chrome_w = UnicodeWidthStr::width(chrome.as_str()) as u16;
             buf.set_string(
                 area.x,
@@ -2460,13 +2477,15 @@ fn render_narrow_rows(
             };
             let marker_w = UnicodeWidthStr::width(marker) as u16;
             let icon = state_icon(row.state, state.spinner_tick);
-            let icon_w = UnicodeWidthStr::width(icon) as u16;
+            let icon_w = crate::glyphs::glyph_layout_cols(icon) as u16;
             let indent = "  ".repeat(row.indent as usize);
             let indent_w = UnicodeWidthStr::width(indent.as_str()) as u16;
             let gap_after_marker = 1u16;
-            let chrome = marker_w + gap_after_marker + indent_w + icon_w + 1;
+            // Extra space after ambiguous-width icons so CJK titles aren't clipped.
+            let icon_gap = if icon_w >= 2 { "  " } else { " " };
+            let chrome = marker_w + gap_after_marker + indent_w + icon_w + (icon_gap.len() as u16);
             let label = truncate_str(&row.label, body_width.saturating_sub(chrome) as usize);
-            let line = format!("{marker} {indent}{icon} {label}");
+            let line = format!("{marker} {indent}{icon}{icon_gap}{label}");
             buf.set_string(
                 area.x,
                 y,

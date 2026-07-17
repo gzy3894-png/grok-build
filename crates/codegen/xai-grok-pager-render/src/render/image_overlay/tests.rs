@@ -111,7 +111,7 @@ fn paint_pixels_with_path_returns_footer_and_exact_transmission() {
     let escapes = render.escapes.unwrap();
     assert!(text.contains("Image #1"));
     assert!(
-        text.contains("Path: /tmp/logo.png"),
+        text.contains("路径: /tmp/logo.png"),
         "rendered footer missing path: {text:?}",
     );
     assert!(escapes.as_str().starts_with(&format!(
@@ -131,7 +131,7 @@ fn paint_pixels_without_path_has_no_footer() {
     let _guard = set_protocol_for_test(GraphicsProtocol::Kitty);
     let (render, text) = render_to_string(&sample_image(None, true), Rect::new(0, 0, 60, 20));
     assert!(render.unwrap().image_placement.is_some());
-    assert!(!text.contains("Path:"));
+    assert!(!text.contains("路径:"));
 }
 
 #[test]

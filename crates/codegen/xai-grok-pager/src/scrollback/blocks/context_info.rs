@@ -1093,20 +1093,20 @@ mod tests {
         let lines = block.build_lines(&theme, BarLayout::WIDE);
         let all = all_text(&lines);
         assert!(
-            all.contains("Skills") && all.contains("21 skills"),
+            all.contains("技能") && all.contains("21 技能"),
             "skills row missing:\n{all}"
         );
         assert!(
-            all.contains("MCP servers") && all.contains("4 servers"),
+            all.contains("MCP 服务器") && all.contains("4 服务器"),
             "mcp row missing:\n{all}"
         );
-        assert!(all.contains("\u{00b7} 12 tools"), "tools count:\n{all}");
+        assert!(all.contains("| 12 工具"), "tools count:\n{all}");
         let (_, tools, _, total) = count_bar_glyphs(&lines, BarLayout::WIDE);
         assert_eq!(total, 100);
         assert_eq!(tools, 0, "usage categories must never enter the bar");
 
         // Token, percent, and count columns line up across all rows;
-        // single-digit counts are right-aligned ("·  4 servers").
+        // single-digit counts are right-aligned ("|  4 服务器").
         let is_row = |l: &&str| {
             (l.starts_with('\u{25C6}') || l.starts_with('\u{25C8}') || l.starts_with('\u{25C7}'))
                 && l.contains(" tokens ")
@@ -1125,7 +1125,7 @@ mod tests {
             );
         }
         assert!(
-            all.contains("\u{00b7}  4 servers"),
+            all.contains("|  4 服务器"),
             "single-digit count must be right-aligned:\n{all}"
         );
     }

@@ -1823,7 +1823,8 @@ pub(crate) fn render_dropdown_chrome(
         let divider_style = Style::default().fg(theme.gray_dim).bg(reset);
         let divider = Line::styled("\u{2500}".repeat(panel_width as usize), divider_style);
         buf.set_line_safe(panel_x, top_border_y, &divider, panel_width);
-        let footer = "\u{2191}/\u{2193} navigate \u{00b7} enter confirm \u{00b7} esc cancel";
+        // ASCII `|` not U+00B7: keeps separator width stable next to CJK locales.
+        let footer = "\u{2191}/\u{2193} navigate | enter confirm | esc cancel";
         let footer_line = Line::styled(
             footer.to_string(),
             Style::default().fg(theme.gray_dim).bg(reset),
