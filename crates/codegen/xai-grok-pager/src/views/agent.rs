@@ -890,7 +890,7 @@ fn space_prompt_hint() -> HintItem {
     use crossterm::event::{KeyCode, KeyModifiers};
     HintItem {
         keys: vec![KeyShortcut::new(KeyCode::Char(' '), KeyModifiers::NONE)],
-        label: "prompt".into(),
+        label: "提示".into(),
         custom_display: Some("Space"),
         description: None,
         pinned: false,
@@ -937,16 +937,16 @@ pub fn build_hints(
             let mut hints = Vec::new();
             hints.push(HintItem::new(
                 crate::key!('h'),
-                if show_done { "hide done" } else { "show done" },
+                if show_done { "隐藏已完成" } else { "显示已完成" },
             ));
             hints
         }
         ActivePane::Queue => {
             let mut hints = vec![
-                HintItem::new(crate::key!('x'), "delete row"),
-                HintItem::new(crate::key!('e'), "edit"),
-                HintItem::paired(crate::key!('J'), crate::key!('K'), "reorder"),
-                HintItem::new(crate::key!('y'), "copy"),
+                HintItem::new(crate::key!('x'), "删除行"),
+                HintItem::new(crate::key!('e'), "编辑"),
+                HintItem::paired(crate::key!('J'), crate::key!('K'), "重排"),
+                HintItem::new(crate::key!('y'), "复制"),
             ];
             if is_turn_running && let Some(def) = registry.find(ActionId::InterjectPrompt) {
                 hints.push(def.hint());
@@ -956,9 +956,9 @@ pub fn build_hints(
         ActivePane::Prompt if is_editing_queued => {
             let mut hints = Vec::new();
             if prompt.can_send() {
-                hints.push(HintItem::new(crate::key!(Enter), "save"));
+                hints.push(HintItem::new(crate::key!(Enter), "保存"));
             }
-            hints.push(HintItem::new(crate::key!(Esc), "cancel"));
+            hints.push(HintItem::new(crate::key!(Esc), "取消"));
             hints
         }
         ActivePane::Prompt if prompt.history_search.is_active() => {
@@ -975,8 +975,8 @@ pub fn build_hints(
                     KeyShortcut::key(KeyCode::PageDown),
                     "page",
                 ),
-                HintItem::new(KeyShortcut::key(KeyCode::Enter), "select"),
-                HintItem::new(KeyShortcut::key(KeyCode::Esc), "cancel"),
+                HintItem::new(KeyShortcut::key(KeyCode::Enter), "选择"),
+                HintItem::new(KeyShortcut::key(KeyCode::Esc), "取消"),
             ]
         }
         ActivePane::Prompt => {
@@ -986,31 +986,31 @@ pub fn build_hints(
             } else {
                 crate::key!(Enter, SHIFT)
             };
-            let submit_label = if is_turn_running { "queue" } else { "send" };
+            let submit_label = if is_turn_running { "排队" } else { "发送" };
             if let Some(key) = registry.key_for(ActionId::SendPrompt) {
                 if prompt.paste_element_at_cursor().is_some() {
-                    hints.push(HintItem::new(key, "expand"));
+                    hints.push(HintItem::new(key, "展开"));
                 } else if multiline_mode && prompt.can_send() {
                     hints.push(HintItem::new(newline_key, submit_label));
                 } else if prompt.can_send() {
                     hints.push(HintItem::new(key, submit_label));
                 } else if is_turn_running && has_queued_follow_up {
-                    hints.push(HintItem::new(key, "send now"));
+                    hints.push(HintItem::new(key, "立即发送"));
                 }
             }
             if shift_enter_unavailable && !multiline_mode && prompt.can_send() {
-                hints.push(HintItem::new(crate::key!(Enter, ALT), "newline"));
+                hints.push(HintItem::new(crate::key!(Enter, ALT), "换行"));
             }
             if prompt.file_ref_near_cursor() {
-                hints.push(HintItem::new(crate::key!(':'), "lines"));
+                hints.push(HintItem::new(crate::key!(':'), "行号"));
             }
             if prompt.prompt_suggestion_visible() {
                 hints.push(
-                    HintItem::paired(crate::key!(Tab), crate::key!(Right), "accept suggestion")
+                    HintItem::paired(crate::key!(Tab), crate::key!(Right), "接受建议")
                         .pinned(),
                 );
             }
-            hints.push(HintItem::new(crate::key!(BackTab), "mode"));
+            hints.push(HintItem::new(crate::key!(BackTab), "模式"));
             for def in registry.hints(&[When::PromptFocused, When::AgentScreen, When::Always]) {
                 if def.id == ActionId::SendPrompt
                     || def.id == ActionId::CommandPalette
@@ -1028,17 +1028,17 @@ pub fn build_hints(
         ActivePane::Tasks => {
             let mut hints = Vec::new();
             if selected_supports_fullscreen {
-                hints.push(HintItem::new(crate::key!(Enter), "view"));
+                hints.push(HintItem::new(crate::key!(Enter), "查看"));
             }
             if selected_supports_copy {
-                hints.push(HintItem::new(crate::key!('y'), "copy output"));
+                hints.push(HintItem::new(crate::key!('y'), "复制输出"));
             }
             if selected_can_kill {
-                hints.push(HintItem::new(crate::key!('x'), "kill"));
+                hints.push(HintItem::new(crate::key!('x'), "终止"));
             }
             hints.push(HintItem::new(
                 crate::key!('h'),
-                if show_done { "hide done" } else { "show done" },
+                if show_done { "隐藏已完成" } else { "显示已完成" },
             ));
             hints
         }
@@ -1047,7 +1047,7 @@ pub fn build_hints(
             let mut hints = Vec::new();
             if vim_mode {
                 if scrollback_search.is_some_and(|s| s.is_composing()) {
-                    hints.push(HintItem::new(crate::key!(Enter), "go"));
+                    hints.push(HintItem::new(crate::key!(Enter), "前往"));
                 } else {
                     hints.push(HintItem::paired(
                         crate::key!('n'),
@@ -1064,7 +1064,7 @@ pub fn build_hints(
                     "next/prev",
                 ));
             }
-            hints.push(HintItem::new(crate::key!(Esc), "cancel"));
+            hints.push(HintItem::new(crate::key!(Esc), "取消"));
             hints
         }
         ActivePane::Scrollback => {
@@ -1080,7 +1080,7 @@ pub fn build_hints(
             }
             if selected_is_credit_limit {
                 if let Some(key) = registry.key_for(ActionId::OpenBlockViewer) {
-                    hints.push(HintItem::new(key, "open"));
+                    hints.push(HintItem::new(key, "打开"));
                 }
                 hints.push(space_prompt_hint());
             }
@@ -1089,7 +1089,7 @@ pub fn build_hints(
                     && selected_supports_copy
                     && let Some(key) = registry.key_for(ActionId::CopyBlockContent)
                 {
-                    hints.push(HintItem::new(key, "copy"));
+                    hints.push(HintItem::new(key, "复制"));
                 }
                 hints.push(space_prompt_hint());
             }
@@ -1100,7 +1100,7 @@ pub fn build_hints(
                         .key_for_mode(ActionId::ToggleFold, vim_mode)
                         .or_else(|| registry.key_for_mode(ActionId::Expand, vim_mode));
                     if let Some(key) = key {
-                        hints.push(HintItem::new(key, "expand"));
+                        hints.push(HintItem::new(key, "展开"));
                     }
                 }
                 if let Some(key) = registry.key_for(ActionId::ExpandAllThinking) {
@@ -1133,7 +1133,7 @@ pub fn build_hints(
                 && selected_supports_fullscreen
                 && let Some(key) = registry.key_for(ActionId::OpenBlockViewer)
             {
-                hints.push(HintItem::new(key, "open"));
+                hints.push(HintItem::new(key, "打开"));
             }
             if vim_mode
                 && let (Some(j), Some(k)) = (
@@ -1141,7 +1141,7 @@ pub fn build_hints(
                     registry.key_for(ActionId::SelectPrev),
                 )
             {
-                hints.push(HintItem::paired(j, k, "nav").pinned());
+                hints.push(HintItem::paired(j, k, "导航").pinned());
             }
             if vim_mode
                 && let (Some(h), Some(l)) = (
@@ -1149,7 +1149,7 @@ pub fn build_hints(
                     registry.key_for(ActionId::NextTurn),
                 )
             {
-                let mut hint = HintItem::paired(l, h, "turn").pinned();
+                let mut hint = HintItem::paired(l, h, "回合").pinned();
                 hint.custom_display = Some("Shift+l/h");
                 hints.push(hint);
             }
@@ -1164,14 +1164,14 @@ pub fn build_hints(
                     registry.key_for(ActionId::GotoBottom),
                 )
             {
-                hints.push(HintItem::paired(g, bg, "top/btm"));
+                hints.push(HintItem::paired(g, bg, "顶/底"));
             }
             if vim_mode
                 && !selected_is_agent_message
                 && selected_supports_copy
                 && let Some(key) = registry.key_for(ActionId::CopyBlockContent)
             {
-                hints.push(HintItem::new(key, "copy"));
+                hints.push(HintItem::new(key, "复制"));
             }
             if vim_mode
                 && let Some(label) = selected_meta_label
@@ -1180,10 +1180,10 @@ pub fn build_hints(
                 hints.push(HintItem::new(key, label));
             }
             if selected_can_kill {
-                hints.push(HintItem::new(crate::key!('x'), "kill"));
+                hints.push(HintItem::new(crate::key!('x'), "终止"));
             }
             if is_subagent_view {
-                hints.push(HintItem::paired(crate::key!('q'), crate::key!(Esc), "back"));
+                hints.push(HintItem::paired(crate::key!('q'), crate::key!(Esc), "返回"));
             }
             hints
         }
@@ -1199,7 +1199,7 @@ pub fn build_hints(
         hints.push(def.hint());
     }
     if can_demote {
-        hints.push(HintItem::new(crate::key!('g', CONTROL), "send to bg"));
+        hints.push(HintItem::new(crate::key!('g', CONTROL), "转后台"));
     }
     hints
 }
@@ -1611,7 +1611,7 @@ mod tests {
         let hints = prompt_hints_with_text_and_turn(false, false, false);
         let labels: Vec<&str> = hints.iter().map(|h| h.label.as_ref()).collect();
         assert!(
-            labels.contains(&"send") && !labels.contains(&"queue"),
+            labels.contains(&"发送") && !labels.contains(&"排队"),
             "idle prompt must advertise Enter:send; got {labels:?}"
         );
     }
@@ -1620,15 +1620,15 @@ mod tests {
         let hints = prompt_hints_with_text_and_turn(false, false, true);
         let labels: Vec<&str> = hints.iter().map(|h| h.label.as_ref()).collect();
         assert!(
-            labels.contains(&"queue"),
+            labels.contains(&"排队"),
             "mid-turn follow-up must advertise Enter:queue (not send); got {labels:?}"
         );
         assert!(
-            !labels.contains(&"send"),
+            !labels.contains(&"发送"),
             "mid-turn must not mislabel Enter as send; got {labels:?}"
         );
         assert!(
-            labels.contains(&"send now"),
+            labels.contains(&"立即发送"),
             "mid-turn with composer text must advertise the send-now (interject) chord; got {labels:?}"
         );
     }
@@ -1666,7 +1666,7 @@ mod tests {
             );
             let labels: Vec<&str> = hints.iter().map(|h| h.label.as_ref()).collect();
             assert!(
-                labels.contains(&"send now"),
+                labels.contains(&"立即发送"),
                 "empty composer mid-turn with queue must advertise Enter:send now \
                  (multiline={multiline}); got {labels:?}"
             );
@@ -1677,7 +1677,7 @@ mod tests {
         let hints = prompt_hints_with_text(false, true);
         let labels: Vec<&str> = hints.iter().map(|h| h.label.as_ref()).collect();
         assert!(
-            labels.contains(&"newline"),
+            labels.contains(&"换行"),
             "legacy VTE must surface an explicit Alt+Enter newline hint; \
              got {labels:?}"
         );
@@ -1687,7 +1687,7 @@ mod tests {
         let hints = prompt_hints_with_text(false, false);
         let labels: Vec<&str> = hints.iter().map(|h| h.label.as_ref()).collect();
         assert!(
-            !labels.contains(&"newline"),
+            !labels.contains(&"换行"),
             "modern terminals must not show the legacy-VTE newline hint \
              (Shift+Enter works natively); got {labels:?}"
         );
@@ -1697,7 +1697,7 @@ mod tests {
         let hints = prompt_hints_with_text(true, true);
         let labels: Vec<&str> = hints.iter().map(|h| h.label.as_ref()).collect();
         assert!(
-            !labels.contains(&"newline"),
+            !labels.contains(&"换行"),
             "multiline mode must not show the legacy-VTE newline hint \
              (Enter already inserts a newline); got {labels:?}"
         );
@@ -1708,7 +1708,7 @@ mod tests {
         let hints = prompt_hints_with_text(true, true);
         let send_hint = hints
             .iter()
-            .find(|h| h.label == "send")
+            .find(|h| h.label == "发送")
             .expect("multiline mode with text must show a send hint");
         let key = send_hint
             .keys
@@ -1733,7 +1733,7 @@ mod tests {
         let hints = prompt_hints_with_text(true, false);
         let send_hint = hints
             .iter()
-            .find(|h| h.label == "send")
+            .find(|h| h.label == "发送")
             .expect("multiline mode with text must show a send hint");
         let key = send_hint
             .keys

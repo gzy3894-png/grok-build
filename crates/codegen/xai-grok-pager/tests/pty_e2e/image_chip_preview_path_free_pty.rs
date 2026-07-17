@@ -44,7 +44,7 @@ async fn image_chip_preview_path_free_pty() {
     );
 
     assert!(
-        screen.contains("Format:"),
+        screen.contains("格式:"),
         "expected format metadata after path-paste; screen:\n{screen}"
     );
     assert!(
@@ -70,7 +70,7 @@ async fn image_chip_preview_path_free_pty() {
         "dismissal sentinel must be visible: {after}"
     );
     assert!(
-        !after.contains("Format:") && !after.contains("Path:") && !after.contains(png_name),
+        !after.contains("格式:") && !after.contains("路径:") && !after.contains(png_name),
         "preview metadata/path must disappear after typing:\n{after}"
     );
     #[cfg(unix)]

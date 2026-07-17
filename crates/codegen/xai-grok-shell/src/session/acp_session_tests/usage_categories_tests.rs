@@ -54,12 +54,12 @@ async fn usage_categories_include_skills_and_mcp_with_counts() {
             let rows = actor.usage_categories().await;
             assert_eq!(rows.len(), 2, "{rows:?}");
             let skills = &rows[0];
-            assert_eq!(skills.label, "Skills");
-            assert_eq!(skills.detail.as_deref(), Some("2 skills"));
+            assert_eq!(skills.label, "技能");
+            assert_eq!(skills.detail.as_deref(), Some("2 技能"));
             assert!(skills.tokens > 0);
             let mcp = &rows[1];
-            assert_eq!(mcp.label, "MCP servers");
-            assert_eq!(mcp.detail.as_deref(), Some("1 server"));
+            assert_eq!(mcp.label, "MCP 服务器");
+            assert_eq!(mcp.detail.as_deref(), Some("1 服务器"));
             assert!(mcp.tokens > 0);
             let info = actor.build_session_info().await;
             assert_eq!(info.context.usage_categories.len(), 2);

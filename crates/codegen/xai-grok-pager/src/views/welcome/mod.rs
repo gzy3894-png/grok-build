@@ -48,7 +48,7 @@ fn quit_hint_spans(theme: &Theme) -> Vec<Span<'static>> {
                 .fg(theme.accent_user)
                 .add_modifier(Modifier::BOLD),
         ),
-        Span::styled("  quit", Style::default().fg(theme.gray)),
+        Span::styled("  退出", Style::default().fg(theme.gray)),
     ]
 }
 
@@ -419,14 +419,14 @@ pub(super) fn render_version_badge(
         } = &mode
     {
         spans.push(Span::styled(
-            format!("Tier: {tier}"),
+            format!("套餐: {tier}"),
             Style::default().fg(theme.gray),
         ));
         spans.push(sep.clone());
     }
     if show_api_key && is_api_key_auth {
         spans.push(Span::styled(
-            "Logged in with API key",
+            "已通过 API 密钥登录",
             Style::default().fg(theme.gray),
         ));
         spans.push(sep);
@@ -541,7 +541,7 @@ fn render_prompt_and_version(
             .add_modifier(Modifier::BOLD);
         let action_style = Style::default().fg(theme.gray);
         let key_text = pending.shortcut.display();
-        let label = format!("press again to {}", pending.label);
+        let label = format!("再按一次以{}", pending.label);
         let line = Line::from(vec![
             Span::styled(format!("  {key_text}"), key_style),
             Span::styled(":", action_style),
@@ -685,7 +685,7 @@ pub fn render_welcome(
     let mut result = match params.auth_state {
         AuthState::Pending { error } => {
             let label = params.login_label.unwrap_or("grok.com");
-            let login_text = format!("Login with {}", label);
+            let login_text = format!("使用 {} 登录", label);
             let menu = [("l", login_text.as_str()), ("q", "退出")];
             let msg = error.as_deref().map(|e| (e, theme.accent_error));
             let info = PromptInfo {
@@ -1070,7 +1070,7 @@ fn push_auth_copy_block(lines: &mut Vec<Line<'static>>, theme: &Theme, clipboard
     lines.push(auth_copy_line(theme));
     lines.push(Line::default());
     lines.push(if clipboard_copied {
-        Line::from(Span::styled("copied!", Style::default().fg(theme.gray)))
+        Line::from(Span::styled("已复制!", Style::default().fg(theme.gray)))
             .alignment(Alignment::Center)
     } else {
         Line::default()
@@ -1199,7 +1199,7 @@ fn render_raw_url_mode(
                 .fg(theme.accent_user)
                 .add_modifier(Modifier::BOLD),
         ),
-        Span::styled("  go back", Style::default().fg(theme.gray)),
+        Span::styled("  返回", Style::default().fg(theme.gray)),
     ];
     let hints = Line::from(hint_spans).alignment(Alignment::Center);
     Paragraph::new(hints).render(hint_area, buf);
@@ -1430,7 +1430,7 @@ fn render_welcome_authenticating(
                         .fg(theme.accent_user)
                         .add_modifier(Modifier::BOLD),
                 ),
-                Span::styled("  submit    ", Style::default().fg(theme.gray)),
+                Span::styled("  提交    ", Style::default().fg(theme.gray)),
             ];
             hint_spans.extend(quit_hint_spans(theme));
             let hints = Line::from(hint_spans).alignment(Alignment::Center);
@@ -1541,7 +1541,7 @@ fn render_changelog_section(
             .fg(theme.gray_bright)
             .add_modifier(Modifier::DIM),
     );
-    let title = "Changelog";
+    let title = "更新日志";
     buf.set_span(
         centered.x,
         centered.y,
@@ -1726,7 +1726,7 @@ fn render_welcome_done(
             // so [x] sits at the very end of the row.
             items.push((key_i_with_x, "导入 Claude 设置"));
         }
-        items.push((key_w, "新建 worktree"));
+        items.push((key_w, "新建工作树"));
         items.push((key_s, "恢复会话"));
         // "Changelog" above Quit; no shortcut — opened by click (row or block).
         if show_changelog_action {
@@ -1900,11 +1900,13 @@ fn render_welcome_done(
         .areas(layout.prompt);
         // Show the user's current tier + clickable refresh button above the gate message.
         let tier_label = p.subscription_tier.unwrap_or("Free");
-        let tier_prefix = format!("Tier: {tier_label}  ");
-        let refresh_text = "[Refresh]";
-        let total_width = tier_prefix.len() + refresh_text.len();
+        let tier_prefix = format!("套餐: {tier_label}  ");
+        let refresh_text = "[刷新]";
+        let prefix_w = unicode_width::UnicodeWidthStr::width(tier_prefix.as_str()) as u16;
+        let refresh_w = unicode_width::UnicodeWidthStr::width(refresh_text) as u16;
+        let total_width = prefix_w + refresh_w;
         let tier_line = Line::from(vec![
-            Span::styled("Tier: ", Style::default().fg(theme.gray)),
+            Span::styled("套餐: ", Style::default().fg(theme.gray)),
             Span::styled(
                 tier_label,
                 Style::default()
@@ -1926,19 +1928,19 @@ fn render_welcome_done(
         };
         Paragraph::new(tier_line).render(tier_area, buf);
 
-        // Compute the click rect for "[Refresh]" within the centered line.
-        let line_start_x = tier_area.x + tier_area.width.saturating_sub(total_width as u16) / 2;
+        // Compute the click rect for "[刷新]" within the centered line.
+        let line_start_x = tier_area.x + tier_area.width.saturating_sub(total_width) / 2;
         refresh_hit_rect = Some(Rect {
-            x: line_start_x + tier_prefix.len() as u16,
+            x: line_start_x + prefix_w,
             y: tier_area.y,
-            width: refresh_text.len() as u16,
+            width: refresh_w,
             height: 1,
         });
 
         let gate_text = p
             .gate
             .map(|g| g.message.as_str())
-            .unwrap_or("SuperGrok subscription required");
+            .unwrap_or("需要 SuperGrok 订阅");
         let msg = Line::from(Span::styled(
             gate_text,
             Style::default().fg(theme.gray_bright),
@@ -2020,13 +2022,13 @@ fn render_welcome_done(
             let key_name = "ctrl+u";
             let line = Line::from(vec![
                 Span::styled(
-                    "Update: ",
+                    "更新: ",
                     Style::default()
                         .fg(theme.accent_user)
                         .add_modifier(Modifier::BOLD),
                 ),
                 Span::styled(
-                    format!("v{ver} available \u{2014} press {key_name} to restart"),
+                    format!("v{ver} 可用 \u{2014} 按 {key_name} 重启"),
                     Style::default().fg(theme.accent_user),
                 ),
             ]);
@@ -2057,17 +2059,17 @@ fn render_welcome_done(
             };
             let mins = hint.age.as_secs() / 60;
             let when = if mins == 0 {
-                "moments ago".to_string()
+                "刚刚".to_string()
             } else {
-                format!("{mins}m ago")
+                format!("{mins} 分钟前")
             };
             let accent = Style::default().fg(theme.accent_user);
             let accent_bold = accent.add_modifier(Modifier::BOLD);
             let tool = crate::app::foreign_tool_display_label(hint.tool);
             let line = Line::from(vec![
-                Span::styled("Coming from ", accent),
+                Span::styled("来自 ", accent),
                 Span::styled(tool, accent_bold),
-                Span::styled(format!("? Resume your session from {when} using "), accent),
+                Span::styled(format!("? 从 {when} 恢复会话，使用 "), accent),
                 Span::styled("ctrl+u", accent_bold),
             ]);
             Paragraph::new(line)
@@ -2358,7 +2360,7 @@ pub(crate) fn render_session_picker(
     }
 
     let config = PickerConfig {
-        title: Some("Resume session"),
+        title: Some("恢复会话"),
         show_search_hint: true,
         expandable: true,
         esc_clears_query: true,

@@ -3346,11 +3346,12 @@ impl PromptWidget {
             };
             let warning_style = Style::default().fg(fg).bg(bg);
             left_spans.push(Span::styled(warning.to_owned(), warning_style));
-            left_spans.push(Span::styled(" · ", sep_style));
+            // ASCII ` | ` — not U+00B7 middot (ambiguous width; eats following CJK).
+            left_spans.push(Span::styled(" | ", sep_style));
         }
         left_spans.push(Span::styled(info.model_name, model_style));
         for flag in info.flags {
-            left_spans.push(Span::styled(" · ", sep_style));
+            left_spans.push(Span::styled(" | ", sep_style));
             let mut style = if let Some(color) = flag.color {
                 if flag.bold {
                     // Bold flags use full color for visibility.

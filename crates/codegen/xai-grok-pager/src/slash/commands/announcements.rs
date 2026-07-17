@@ -3,7 +3,7 @@
 use crate::app::actions::Action;
 use crate::slash::command::{AppCtx, ArgItem, CommandExecCtx, CommandResult, SlashCommand};
 
-const USAGE: &str = "Usage: /announcements hide | show";
+const USAGE: &str = "用法：/announcements hide | show";
 
 /// Control the announcement banner (hide/show).
 pub struct AnnouncementsCommand;
@@ -39,13 +39,13 @@ impl SlashCommand for AnnouncementsCommand {
                 display: "hide".to_string(),
                 match_text: "hide".to_string(),
                 insert_text: "hide".to_string(),
-                description: "Hide the announcement banner".to_string(),
+                description: "隐藏公告横幅".to_string(),
             },
             ArgItem {
                 display: "show".to_string(),
                 match_text: "show".to_string(),
                 insert_text: "show".to_string(),
-                description: "Show the announcement banner".to_string(),
+                description: "显示公告横幅".to_string(),
             },
         ])
     }

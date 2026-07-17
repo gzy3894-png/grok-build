@@ -57,7 +57,7 @@ impl SlashCommand for EffortCommand {
     fn run(&self, ctx: &mut CommandExecCtx, args: &str) -> CommandResult {
         let trimmed = args.trim();
         let Some(model_id) = ctx.models.current.clone() else {
-            return CommandResult::Error("No active model".into());
+            return CommandResult::Error("当前无活动模型".into());
         };
 
         if trimmed.is_empty() {
@@ -70,14 +70,14 @@ impl SlashCommand for EffortCommand {
             let current = ctx
                 .models
                 .reasoning_effort
-                .map(|e| format!(" (current: {e})"))
+                .map(|e| format!("（当前：{e}）"))
                 .unwrap_or_default();
             let levels = if offered.is_empty() {
                 "<level>".to_string()
             } else {
                 offered.join("|")
             };
-            return CommandResult::Error(format!("Usage: /effort <{levels}>{current}"));
+            return CommandResult::Error(format!("用法：/effort <{levels}>{current}"));
         }
 
         // Same gate-first policy as the CLI (`--effort`) and headless.
@@ -154,10 +154,10 @@ mod tests {
         let result = EffortCommand.run(&mut ctx, "");
         match result {
             CommandResult::Error(msg) => {
-                assert!(msg.contains("Usage: /effort"));
+                assert!(msg.contains("用法：/effort"));
                 // Legacy menu option ids only — not none/minimal.
                 assert!(msg.contains("xhigh|high|medium|low"), "msg={msg}");
-                assert!(msg.contains("current: medium"));
+                assert!(msg.contains("当前：medium"));
                 assert!(!msg.contains("none"));
                 assert!(!msg.contains("minimal"));
             }
@@ -310,7 +310,7 @@ mod tests {
         state.available.insert(id, info);
         let mut ctx = dummy_exec_ctx(&state);
         let result = EffortCommand.run(&mut ctx, "high");
-        assert!(matches!(result, CommandResult::Error(msg) if msg.contains("No active model")));
+        assert!(matches!(result, CommandResult::Error(msg) if msg.contains("当前无活动模型")));
     }
 
     #[test]
@@ -357,7 +357,7 @@ mod tests {
         assert_eq!(items.len(), EFFORT_LEVELS.len());
         assert_eq!(items[0].insert_text, "xhigh");
         assert_eq!(items[1].insert_text, "high");
-        assert_eq!(items[1].display, "high (active)");
+        assert_eq!(items[1].display, "high（当前）");
         assert_eq!(items[2].insert_text, "medium");
         assert_eq!(items[3].insert_text, "low");
         assert!(items[0].match_text.starts_with("a "));

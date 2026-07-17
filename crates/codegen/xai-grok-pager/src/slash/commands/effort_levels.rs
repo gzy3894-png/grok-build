@@ -15,12 +15,12 @@ pub(crate) const EFFORT_LEVELS: &[ReasoningEffort] = &[
 
 pub(crate) fn effort_description(level: ReasoningEffort) -> &'static str {
     match level {
-        ReasoningEffort::None => "No reasoning",
-        ReasoningEffort::Minimal => "Minimal reasoning",
-        ReasoningEffort::Low => "Faster, lighter reasoning",
-        ReasoningEffort::Medium => "Balanced reasoning",
-        ReasoningEffort::High => "Heavy reasoning",
-        ReasoningEffort::Xhigh => "Maximum reasoning",
+        ReasoningEffort::None => "不推理",
+        ReasoningEffort::Minimal => "最少推理",
+        ReasoningEffort::Low => "更快、更轻的推理",
+        ReasoningEffort::Medium => "均衡推理",
+        ReasoningEffort::High => "重度推理",
+        ReasoningEffort::Xhigh => "最强推理",
     }
 }
 
@@ -43,7 +43,7 @@ pub(crate) fn legacy_effort_options() -> Vec<ReasoningEffortOption> {
 
 /// Build effort rows for autocomplete from a per-model option list.
 ///
-/// - `mark_active` + `current_effort` mark the current session effort with `(active)`.
+/// - `mark_active` + `current_effort` mark the current session effort with `（当前）`.
 /// - `insert_text_for` controls what is inserted on select:
 ///   - `/effort`: the option id (`"deep"`)
 ///   - `/model` chained phase: `"ModelName deep"`
@@ -61,7 +61,7 @@ pub(crate) fn build_effort_arg_items(
         .enumerate()
         .map(|(idx, option)| {
             let active = mark_active && current_effort == Some(option.value);
-            let active_suffix = if active { " (active)" } else { "" };
+            let active_suffix = if active { "（当前）" } else { "" };
             let insert_text = insert_text_for(option);
             // Sort-key prefix: 'a' for top row, 'b' for next, etc. Only
             // affects matcher tiebreak ordering, never rendered.

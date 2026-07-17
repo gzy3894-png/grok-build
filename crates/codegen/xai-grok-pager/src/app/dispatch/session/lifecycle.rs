@@ -102,7 +102,7 @@ pub(crate) fn apply_deferred_switch_outcome(
     outcome: DeferredSwitchOutcome,
 ) -> Option<(acp::ModelId, Option<ReasoningEffort>)> {
     if let Some(err) = outcome.effort_error {
-        let msg = format!("--effort/--reasoning-effort: {}", err.message());
+        let msg = format!("参数 --effort/--reasoning-effort: {}", err.message());
         tracing::warn!("{msg}");
         agent.show_toast(&msg);
         agent.scrollback.push_block(RenderBlock::system(msg));
@@ -595,8 +595,8 @@ pub(in crate::app::dispatch) fn dispatch_new_worktree_session(
         return vec![];
     }
     if !app.cwd_has_git_ancestor {
-        let msg: String = "Not inside a git repository. Navigate to a git repo \
-                      or run 'git init' first."
+        let msg: String = "不在 git 仓库中。请先进入 git 仓库，\
+                      或运行 'git init'。"
             .into();
         if !app.startup_warnings.iter().any(|w| w.message == msg) {
             app.startup_warnings.push(crate::startup::StartupWarning {
@@ -812,12 +812,12 @@ pub(in crate::app::dispatch) fn handle_session_created(
             && let Some(cmd) = switch_hint
         {
             agent.scrollback.push_block(RenderBlock::system(format!(
-                "Session {} \u{2014} use {cmd} to switch between sessions",
+                "会话 {} \u{2014} 用 {cmd} 切换会话",
                 session_id_clone.0,
             )));
         } else if agent_count > 1 {
             agent.scrollback.push_block(RenderBlock::system(format!(
-                "Session: {}",
+                "会话: {}",
                 session_id_clone.0,
             )));
         }
@@ -913,7 +913,7 @@ pub(in crate::app::dispatch) fn handle_worktree_session_created(
         }
         agent.prompt.file_search.retarget(&session_cwd);
         agent.scrollback.push_block(RenderBlock::system(format!(
-            "Worktree ready: {}",
+            "工作树已就绪: {}",
             worktree_path.display()
         )));
         let deferred = apply_deferred_model_switch(agent, app.cli_effort_token.as_deref());
@@ -1008,7 +1008,7 @@ pub(in crate::app::dispatch) fn handle_worktree_session_failed(
             app.session_picker_content_results = None;
             app.session_picker_content_loading = false;
         }
-        let msg = format!("Cannot create worktree: {error}");
+        let msg = format!("无法创建工作树: {error}");
         if !app.startup_warnings.iter().any(|w| w.message == msg) {
             app.startup_warnings.push(crate::startup::StartupWarning {
                 severity: crate::startup::WarningSeverity::Warning,
@@ -1061,9 +1061,9 @@ pub(in crate::app::dispatch) fn handle_switch_model_complete(
                     prev_model.as_ref() == Some(&model_id) && prev_effort == resolved_effort;
                 if !unchanged {
                     let msg = if let Some(eff) = resolved_effort {
-                        format!("Switched to {display_name} ({eff} effort)")
+                        format!("已切换到 {display_name}（推理强度 {eff}）")
                     } else {
-                        format!("Switched to {display_name}")
+                        format!("已切换到 {display_name}")
                     };
                     agent.scrollback.push_block(RenderBlock::system(msg));
                 }
@@ -1087,7 +1087,7 @@ pub(in crate::app::dispatch) fn handle_switch_model_complete(
             Err(SwitchModelError::Other(msg)) => {
                 agent
                     .scrollback
-                    .push_block(RenderBlock::system(format!("Couldn't switch model: {msg}")));
+                    .push_block(RenderBlock::system(format!("无法切换模型: {msg}")));
                 vec![]
             }
         };

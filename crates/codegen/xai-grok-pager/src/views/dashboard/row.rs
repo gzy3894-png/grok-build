@@ -86,11 +86,11 @@ pub enum RowBadge {
 impl RowBadge {
     pub fn label(self) -> &'static str {
         match self {
-            Self::Worktree => "worktree",
+            Self::Worktree => "工作树",
             Self::NeedsInput => "needs-input",
             Self::BgTask => "bg",
             Self::Pinned => "pinned",
-            Self::Failed => "failed",
+            Self::Failed => "失败",
         }
     }
 }
@@ -227,7 +227,7 @@ fn build_local_rows(
                     parent: *id,
                     child_session_id: format!("__more_{}", id.0),
                 },
-                label: format!("\u{2026} {} more", total - keep),
+                label: format!("\u{2026} 还有 {} 个", total - keep),
                 subtitle: None,
                 state: RowState::Idle,
                 activity: None,
@@ -311,8 +311,8 @@ fn append_roster_rows(
             .unwrap_or_else(|| sanitize(&entry.session_id));
         let state = roster_activity_to_state(entry.activity);
         let activity = match state {
-            RowState::NeedsInput => Some("Awaiting input".to_string()),
-            RowState::Working => Some("Working".to_string()),
+            RowState::NeedsInput => Some("等待输入".to_string()),
+            RowState::Working => Some("工作中".to_string()),
             _ => None,
         };
         let mut badges = Vec::new();
@@ -427,18 +427,18 @@ fn background_work_label(agent: &AgentView) -> Option<String> {
         return None;
     }
     let mut label = String::with_capacity(24);
-    label.push_str("watching");
+    label.push_str("监视中");
     if monitors > 0 {
-        let noun = if monitors == 1 { "monitor" } else { "monitors" };
-        let _ = write!(label, " \u{00b7} {monitors} {noun}");
+        let noun = if monitors == 1 { "监视器" } else { "监视器" };
+        let _ = write!(label, " | {monitors} {noun}");
     }
     if loops > 0 {
-        let noun = if loops == 1 { "loop" } else { "loops" };
-        let _ = write!(label, " \u{00b7} {loops} {noun}");
+        let noun = if loops == 1 { "循环" } else { "循环" };
+        let _ = write!(label, " | {loops} {noun}");
     }
     if tasks > 0 {
-        let noun = if tasks == 1 { "task" } else { "tasks" };
-        let _ = write!(label, " \u{00b7} {tasks} {noun}");
+        let noun = if tasks == 1 { "任务" } else { "任务" };
+        let _ = write!(label, " | {tasks} {noun}");
     }
     Some(label)
 }
@@ -601,7 +601,7 @@ fn subagent_row(
         if desc.trim().is_empty() {
             label
         } else {
-            format!("{label} · {desc}")
+            format!("{label} | {desc}")
         }
     };
     let activity = subagent_activity(info, state);
@@ -712,7 +712,7 @@ fn top_level_subtitle(agent: &AgentView) -> Option<String> {
         return None;
     }
     if is_worktree {
-        parts.push("worktree".to_string());
+        parts.push("工作树".to_string());
     }
     Some(parts.join(" "))
 }
@@ -743,11 +743,11 @@ fn top_level_secondary_line(
             if let Some(perm) = agent.permission_queue.front() {
                 let title = perm.title.trim();
                 if !title.is_empty() {
-                    return Some(format!("Pending: {}", sanitize(title)));
+                    return Some(format!("待处理: {}", sanitize(title)));
                 }
             }
             if agent.question_view.is_some() {
-                return Some("Pending: question".to_string());
+                return Some("待处理: 提问".to_string());
             }
             activity.map(sanitize)
         }
@@ -793,7 +793,7 @@ fn first_nonempty_line(s: &str) -> Option<&str> {
 fn subagent_subtitle(info: &SubagentInfo, cwd: &std::path::Path) -> Option<String> {
     let name = cwd_basename(cwd)?;
     if info.worktree_path.is_some() {
-        Some(format!("{name} worktree"))
+        Some(format!("{name} 工作树"))
     } else {
         Some(name)
     }
@@ -809,18 +809,18 @@ fn subagent_secondary_line(
 }
 fn top_level_activity(agent: &AgentView, state: RowState) -> Option<String> {
     match state {
-        RowState::NeedsInput => Some("Awaiting your input".to_string()),
+        RowState::NeedsInput => Some("等待你的输入".to_string()),
         RowState::Working => {
             if let Some(cmd) = agent.session.state.command_in_flight() {
                 Some(format!("{}…", cmd.display_name()))
             } else if let Some(activity) = agent.resolve_turn_activity() {
                 Some(sanitize(&format_activity_label(&activity)))
             } else if agent.session.loading_replay {
-                Some("Loading…".to_string())
+                Some("加载中…".to_string())
             } else if let Some(bg) = background_work_label(agent) {
                 Some(bg)
             } else {
-                Some("Working".to_string())
+                Some("工作中".to_string())
             }
         }
         _ => None,
@@ -838,7 +838,7 @@ fn subagent_activity(info: &SubagentInfo, state: RowState) -> Option<String> {
         }
         let last_tool = info.tools_used.last().map(|s| s.as_ref()).unwrap_or("");
         if last_tool.is_empty() {
-            Some("Working".to_string())
+            Some("工作中".to_string())
         } else {
             Some(sanitize(&format_activity_label(
                 &TurnActivity::ToolRunning {
@@ -851,7 +851,7 @@ fn subagent_activity(info: &SubagentInfo, state: RowState) -> Option<String> {
         let turns = info.turns.unwrap_or(0);
         let tools = info.tool_calls.unwrap_or(0);
         let toks = info.tokens_used.unwrap_or(0);
-        Some(format!("{tools} tools · {toks} tok · {turns} turns"))
+        Some(format!("{tools} 工具 | {toks} tok | {turns} 回合"))
     } else {
         None
     }

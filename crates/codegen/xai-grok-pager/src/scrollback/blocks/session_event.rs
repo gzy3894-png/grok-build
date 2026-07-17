@@ -535,7 +535,7 @@ impl SessionEventBlock {
         let header_style = header_text_style.add_modifier(Modifier::BOLD);
         // Non-selectable chrome (same as Thinking / tool label prefixes).
         let header_line =
-            || BlockLine::separator(Line::from(Span::styled("Recap".to_string(), header_style)));
+            || BlockLine::separator(Line::from(Span::styled("回顾".to_string(), header_style)));
 
         // Loading: header only; the animated gray sidebar is the feedback.
         if ctx.is_running {
@@ -546,7 +546,7 @@ impl SessionEventBlock {
 
         match ctx.mode {
             DisplayMode::Collapsed => {
-                let mut spans = vec![Span::styled("Recap".to_string(), header_style)];
+                let mut spans = vec![Span::styled("回顾".to_string(), header_style)];
                 let preview = summary.lines().next().unwrap_or(summary).trim();
                 if !preview.is_empty() {
                     spans.push(Span::styled(format!("  {preview}"), theme.muted()));
@@ -555,7 +555,7 @@ impl SessionEventBlock {
                     Line::from(spans),
                     ctx.content_width(),
                 );
-                // Only the preview span is copyable — never the "Recap" label.
+                // Only the preview span is copyable — never the "回顾" label.
                 // No preview (empty after trim) → fully non-selectable.
                 let selectable = if preview.is_empty() {
                     Selectable::None

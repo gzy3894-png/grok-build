@@ -49,20 +49,20 @@ impl SlashCommand for DocsCommand {
                 display: "how-to".into(),
                 match_text: "how-to".into(),
                 insert_text: "how-to".into(),
-                description: "Browse in-TUI How-to Guides".into(),
+                description: "浏览应用内指南".into(),
             },
             ArgItem {
                 display: "web".into(),
                 match_text: "web".into(),
                 insert_text: "web".into(),
-                description: "Open docs.x.ai/build in the browser".into(),
+                description: "在浏览器打开文档".into(),
             },
         ];
         items.extend(all_titles().map(|title| ArgItem {
             display: title.into(),
             match_text: title.into(),
             insert_text: title.into(),
-            description: format!("Open \"{title}\""),
+            description: format!("打开「{title}」"),
         }));
         Some(items)
     }
@@ -81,7 +81,7 @@ impl SlashCommand for DocsCommand {
                 content: doc.content.into(),
             }),
             None => CommandResult::Error(format!(
-                "Unknown docs target {trimmed:?}. Try /docs, /docs web, or a guide title (e.g. /docs Getting Started)."
+                "未知文档目标 {trimmed:?}。可试 /docs、/docs web，或指南标题（如 /docs Getting Started）。"
             )),
         }
     }

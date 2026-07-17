@@ -23,7 +23,7 @@ impl SlashCommand for CompactCommand {
     }
 
     fn usage(&self) -> &str {
-        "/compact compaction instructions"
+        "/compact [压缩说明]"
     }
 
     fn takes_args(&self) -> bool {
@@ -36,7 +36,7 @@ impl SlashCommand for CompactCommand {
     }
 
     fn arg_placeholder(&self) -> Option<&str> {
-        Some("compaction instructions")
+        Some("[压缩说明]")
     }
 
     fn run(&self, _ctx: &mut CommandExecCtx, args: &str) -> CommandResult {

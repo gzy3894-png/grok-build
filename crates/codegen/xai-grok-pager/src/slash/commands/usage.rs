@@ -44,13 +44,13 @@ impl SlashCommand for UsageCommand {
                 display: "show".to_string(),
                 match_text: "show".to_string(),
                 insert_text: "show".to_string(),
-                description: "View credit usage".to_string(),
+                description: "查看额度用量".to_string(),
             },
             ArgItem {
                 display: "manage".to_string(),
                 match_text: "manage".to_string(),
                 insert_text: "manage".to_string(),
-                description: "Open billing management page".to_string(),
+                description: "打开账单管理页".to_string(),
             },
         ])
     }
@@ -63,7 +63,7 @@ impl SlashCommand for UsageCommand {
                 CommandResult::Action(Action::OpenUrl("https://grok.com/?_s=usage".to_string()))
             }
             _ => CommandResult::Error(format!(
-                "Unknown argument: {arg}. Use /usage show or /usage manage"
+                "未知参数：{arg}。请用 /usage show 或 /usage manage"
             )),
         }
     }

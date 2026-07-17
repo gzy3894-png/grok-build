@@ -172,7 +172,7 @@ pub fn render_dashboard(
     // selected: it replaces the new-session dispatch box, follows the
     // selection cursor, and surfaces live status + the last response (or
     // a pending permission / ask question). With no selection (the
-    // `[+ New Agent]` button focused, or after Esc) the peek closes and
+    // `[+ 新代理]` button focused, or after Esc) the peek closes and
     // the new-session input shows instead.
     //
     // `apply_fields` preserves the in-progress reply draft (held by the
@@ -454,11 +454,11 @@ pub fn render_dashboard(
 /// end of the typed draft, on the renamed row's title line. `None` when
 /// no rename is active (or its row isn't on screen).
 ///
-/// The overlay paints `rename: {draft}` at the title's own column —
+/// The overlay paints `重命名: {draft}` at the title's own column —
 /// past the marker (1) + gap (1) + indent + icon + gap (1) chrome — in
 /// BOTH layouts (`render_row` / `render_narrow_rows` share the
 /// formula). The cursor mirrors that chrome math; anything else parks
-/// it over the `rename:` prefix or past the typed text. Indent and
+/// it over the `重命名:` prefix or past the typed text. Indent and
 /// icon width come from the live row so a Working spinner or a
 /// (future) indented renameable row can't drift the formula.
 ///
@@ -470,7 +470,7 @@ fn rename_cursor_pos(state: &DashboardState, rows: &[DashboardRow]) -> Option<(u
     let rn = state.rename.as_ref()?;
     let (_, rect) = state.row_rects.iter().find(|(id, _)| *id == rn.row)?;
     let safe_draft = crate::views::session_title::sanitize_display_text(&rn.draft);
-    let prefix_w = UnicodeWidthStr::width("rename: ") as u16;
+    let prefix_w = UnicodeWidthStr::width("重命名: ") as u16;
     let draft_w = UnicodeWidthStr::width(safe_draft.as_ref()) as u16;
     let (indent_w, icon_w) = rows
         .iter()
@@ -548,16 +548,16 @@ fn render_dashboard_banner(
             needs_input += 1;
         }
     }
-    let agent_word = if total == 1 { "agent" } else { "agents" };
-    let mut title_parts: Vec<String> = vec!["Dashboard".to_string()];
+    let agent_word = if total == 1 { "代理" } else { "代理" };
+    let mut title_parts: Vec<String> = vec!["仪表盘".to_string()];
     title_parts.push(format!("{total} {agent_word}"));
     if working > 0 {
-        title_parts.push(format!("{working} working"));
+        title_parts.push(format!("{working} 工作中"));
     }
     if needs_input > 0 {
-        title_parts.push(format!("{needs_input} awaiting"));
+        title_parts.push(format!("{needs_input} 等待中"));
     }
-    let title = format!(" {} ", title_parts.join(" · "));
+    let title = format!(" {} ", title_parts.join(" | "));
 
     // Draw the bordered frame with the title centred on the top edge.
     let block = Block::default()
@@ -584,7 +584,7 @@ fn render_dashboard_banner(
         return;
     }
     if rows.is_empty() {
-        let hint = " No sessions yet — Esc to dispatch one. ";
+        let hint = " 暂无会话 — 按 Esc 派发 ";
         let trunc = truncate_str(hint, inner.width as usize);
         buf.set_string(
             inner.x,
@@ -605,7 +605,7 @@ fn render_dashboard_banner(
 /// Render the dashboard header row:
 ///
 /// ```text
-///   main worktree ~/wt/wt1 (worktree of ~/proj)   ◆ 2 awaiting · ⋮ 3 working · ◇ 1 idle │ [+ New Agent]
+///   main worktree ~/wt/wt1 (worktree of ~/proj)   ◆ 2 awaiting · ⋮ 3 working · ◇ 1 idle │ [+ 新代理]
 /// ```
 ///
 /// Left: the current location — git branch + worktree badge + cwd, the
@@ -620,7 +620,7 @@ fn render_dashboard_banner(
 /// inflate the tallies if counted directly. Chips with zero count are
 /// suppressed.
 ///
-/// Reintroduces a `[+ New Agent]` button on the right edge of
+/// Reintroduces a `[+ 新代理]` button on the right edge of
 /// the header. The button is the default cursor target whenever
 /// no row is selected — Up-arrow from the first row, Esc deselect,
 /// and dashboard-open-without-prior-agent all land here. While
@@ -655,19 +655,19 @@ fn render_header(
     }
     buf.set_style(area, Style::default().bg(theme.bg_base));
 
-    // Paint the `[+ New Agent]` button on the far right FIRST,
+    // Paint the `[+ 新代理]` button on the far right FIRST,
     // before the status chips. We then shrink the chip rendering
     // area so the chips don't overlap the button. Right-margin
     // is 1 cell so the button doesn't kiss the panel edge.
     // Worktree mode armed (and the cwd is a git repo, so it can actually
     // take effect) → the button creates the next session in a fresh git
-    // worktree, so label it `[+ New Worktree]` to match. Otherwise it's the
+    // worktree, so label it `[+ 新工作树]` to match. Otherwise it's the
     // plain new-session button. Width is derived from the chosen label so the
     // positioning + hit rect below stay correct for either string.
     let button_label: &str = if state.dispatch_worktree && state.cwd_has_git_ancestor {
-        "[+ New Worktree]"
+        "[+ 新工作树]"
     } else {
-        "[+ New Agent]"
+        "[+ 新代理]"
     };
     let button_w = UnicodeWidthStr::width(button_label) as u16;
     let right_margin: u16 = 1;
@@ -758,7 +758,7 @@ fn render_header(
                 crate::glyphs::diamond_filled(),
                 theme.warning,
                 awaiting,
-                "awaiting",
+                "等待中",
             ),
         );
     }
@@ -770,7 +770,7 @@ fn render_header(
         let spin = frames[(state.spinner_tick / SPINNER_DIVISOR) as usize % frames.len()];
         status.push(
             "working",
-            chip(spin, theme.accent_running, working, "working"),
+            chip(spin, theme.accent_running, working, "工作中"),
         );
     }
     if blocked > 0 {
@@ -780,7 +780,7 @@ fn render_header(
                 crate::glyphs::diamond_filled(),
                 theme.warning,
                 blocked,
-                "blocked",
+                "阻塞",
             ),
         );
     }
@@ -791,7 +791,7 @@ fn render_header(
                 crate::glyphs::diamond_hollow(),
                 theme.gray_dim,
                 idle,
-                "idle",
+                "空闲",
             ),
         );
     }
@@ -802,7 +802,7 @@ fn render_header(
                 crate::glyphs::diamond_filled(),
                 theme.accent_success,
                 done,
-                "done",
+                "完成",
             ),
         );
     }
@@ -813,12 +813,12 @@ fn render_header(
                 crate::glyphs::diamond_filled(),
                 theme.accent_error,
                 failed,
-                "failed",
+                "失败",
             ),
         );
     }
     // Chips render right-aligned within `chip_area` so they sit
-    // immediately to the left of the `[+ New Agent]` button. Capture
+    // immediately to the left of the `[+ 新代理]` button. Capture
     // the per-chip rects so the left label's width budget stops short
     // of the leftmost chip instead of painting over it.
     let chip_rects = status.render(buf, chip_area);
@@ -869,7 +869,7 @@ fn render_header(
 
     // Record the painted label as a click target so the mouse handler
     // can open the location picker. Width is clamped to the label budget
-    // so the hit area never extends under the chips / `[+ New Agent]`.
+    // so the hit area never extends under the chips / `[+ 新代理]`.
     let hit_w = location_w.min(label_budget as u16);
     if hit_w > 0 {
         state.location_hit.set(Some(Rect {
@@ -962,7 +962,7 @@ fn render_location_picker(
 
     let mut shortcuts = vec![
         Shortcut {
-            label: "\u{2191}\u{2193} nav",
+            label: "\u{2191}\u{2193} 导航",
             clickable: false,
             id: 0,
         },
@@ -986,7 +986,7 @@ fn render_location_picker(
     // picker, but Esc drops to nav under vim).
     push_vim_nav_search_hint(&mut shortcuts, modal.picker.search_active);
     let config = ModalWindowConfig {
-        title: "Change directory",
+        title: "更改目录",
         tabs: None,
         shortcuts: &shortcuts,
         sizing: ModalSizing::medium(),
@@ -1022,9 +1022,9 @@ fn render_location_picker(
         // usable path field; otherwise the field spans the full width and
         // the button is hidden.
         let wt_text = if modal.worktree_mode {
-            "[worktree:on]"
+            "[工作树:开]"
         } else {
-            "[worktree:off]"
+            "[工作树:关]"
         };
         let wt_w = wt_text.len() as u16; // ASCII → byte len == display width
         const WT_GAP: u16 = 1;
@@ -1073,12 +1073,12 @@ fn render_location_picker(
                 Style::default().fg(label_fg).bg(theme.bg_base),
             );
             if modal.worktree_mode
-                && let Some(on_at) = wt_text.find("on")
+                && let Some(on_at) = wt_text.find("开")
             {
                 buf.set_string(
                     r.x + on_at as u16,
                     r.y,
-                    "on",
+                    "开",
                     Style::default().fg(theme.accent_success).bg(theme.bg_base),
                 );
             }
@@ -1116,8 +1116,8 @@ fn render_location_picker(
     let badges: Vec<String> = visible
         .iter()
         .map(|c| match &c.worktree {
-            Some(name) if name == &c.label => "worktree".to_string(),
-            Some(name) => format!("worktree: {name}"),
+            Some(name) if name == &c.label => "工作树".to_string(),
+            Some(name) => format!("工作树: {name}"),
             None => String::new(),
         })
         .collect();
@@ -1839,9 +1839,9 @@ fn render_idle_overflow(
     };
     let style = Style::default().fg(fg).bg(theme.bg_base);
     let label = if expanded {
-        "show fewer".to_string()
+        "收起".to_string()
     } else {
-        format!("{hidden} more")
+        format!("还有 {hidden} 个")
     };
     // A `+` / `-` expand indicator in the icon column + the label in the
     // agent-name column, so the row aligns with the Idle rows above:
@@ -2080,7 +2080,7 @@ fn render_row(
             icon,
             Style::default().fg(icon_color).bg(bg),
         );
-        let prefix = "rename: ";
+        let prefix = "重命名: ";
         let safe_draft = crate::views::session_title::sanitize_display_text(&rn.draft).into_owned();
         let line = format!("{prefix}{safe_draft}");
         let avail = (rect.x + rect.width).saturating_sub(content_start_x + 1);
@@ -2199,7 +2199,7 @@ fn render_row(
             && cx + 4 < age_x
         {
             let remaining = age_x.saturating_sub(cx).saturating_sub(2) as usize;
-            let sub_str = format!(" \u{00B7} {sub}");
+            let sub_str = format!(" | {sub}");
             let sub_trunc = truncate_str(&sub_str, remaining);
             let sub_w = UnicodeWidthStr::width(&sub_trunc[..]) as u16;
             buf.set_string(
@@ -2225,7 +2225,7 @@ fn render_row(
             }
             let label = match badge {
                 RowBadge::NeedsInput | RowBadge::Worktree | RowBadge::Pinned => continue,
-                RowBadge::Failed => "failed",
+                RowBadge::Failed => "失败",
                 RowBadge::BgTask => "bg",
             };
             let chip = format!(" [{label}]");
@@ -2422,7 +2422,7 @@ fn render_narrow_rows(
 
         if renaming && let Some(rn) = state.rename.as_ref() {
             // Mirror the wide layout: keep the marker + state icon
-            // chrome and swap only the label for `rename: {draft}`, so
+            // chrome and swap only the label for `重命名: {draft}`, so
             // the editing row stays column-aligned with its neighbours.
             let marker = if selected {
                 crate::glyphs::selection_bar()
@@ -2441,7 +2441,7 @@ fn render_narrow_rows(
             );
             let safe_draft =
                 crate::views::session_title::sanitize_display_text(&rn.draft).into_owned();
-            let line = format!("rename: {safe_draft}");
+            let line = format!("重命名: {safe_draft}");
             let truncated = truncate_str(&line, body_width.saturating_sub(chrome_w) as usize);
             buf.set_string(
                 area.x + chrome_w,
@@ -2493,13 +2493,13 @@ fn render_no_match(buf: &mut Buffer, area: Rect, theme: &Theme, filter: &Filter)
         return;
     }
     let hint = match filter {
-        Filter::None => "No matching rows.".to_string(),
-        Filter::Agent(n) => format!("No agents match `a:{n}` — press Esc to clear the filter."),
+        Filter::None => "无匹配的行。".to_string(),
+        Filter::Agent(n) => format!("无匹配 `a:{n}` 的代理 — 按 Esc 清除筛选。"),
         Filter::State(s) => format!(
-            "No agents in state `{}` — press Esc to clear the filter.",
+            "状态 `{}` 下无代理 — 按 Esc 清除筛选。",
             s.group_label()
         ),
-        Filter::Substring(n) => format!("No rows match `{n}` — press Esc to clear the filter."),
+        Filter::Substring(n) => format!("无匹配 `{n}` 的行 — 按 Esc 清除筛选。"),
     };
     let truncated = truncate_str(&hint, area.width.saturating_sub(2) as usize);
     // Explicit offset to avoid `area.y + 1.min(...)`
@@ -2524,9 +2524,9 @@ fn render_empty_state(buf: &mut Buffer, area: Rect, theme: &Theme, loading: bool
     // session roster is still being fetched we show a loading hint so a
     // fresh open doesn't flash the "no agents" copy before rows land.
     let line = if loading {
-        "Loading sessions…"
+        "正在加载会话…"
     } else {
-        "No agents yet, type a prompt to start one."
+        "暂无代理，输入提示以开始。"
     };
     let truncated = truncate_str(line, area.width.saturating_sub(2) as usize);
     // See `render_no_match` for the precedence rationale.
@@ -3199,7 +3199,7 @@ fn render_footer(
             .unwrap_or_else(|| key!('x', CONTROL));
         let pending = PendingHint {
             shortcut: stop_key,
-            label: "close this session",
+            label: "关闭此会话",
         };
         ShortcutsBar::new(&[])
             .with_pending(Some(pending))
@@ -3212,8 +3212,8 @@ fn render_footer(
     // exactly its two actions instead of the dispatch + nav matrix.
     if state.rename.is_some() {
         let hints = vec![
-            HintItem::new(key!(Enter), "save"),
-            HintItem::new(key!(Esc), "cancel"),
+            HintItem::new(key!(Enter), "保存"),
+            HintItem::new(key!(Esc), "取消"),
         ];
         ShortcutsBar::new(&hints)
             .compact(4, None)
@@ -3225,9 +3225,9 @@ fn render_footer(
     // live filter rather than the dispatch + nav matrix.
     if state.search_mode {
         let hints = vec![
-            HintItem::paired(key!(Up), key!(Down), "nav"),
-            HintItem::new(key!(Enter), "apply"),
-            HintItem::new(key!(Esc), "cancel"),
+            HintItem::paired(key!(Up), key!(Down), "导航"),
+            HintItem::new(key!(Enter), "应用"),
+            HintItem::new(key!(Esc), "取消"),
         ];
         ShortcutsBar::new(&hints)
             .compact(4, None)
@@ -3284,10 +3284,10 @@ fn render_footer(
             };
             let hints = vec![
                 HintItem::new(key!(Enter), toggle),
-                HintItem::new(key!(Tab), "input"),
+                HintItem::new(key!(Tab), "输入"),
             ];
             ShortcutsBar::new(&hints)
-                .compact(4, Some(HintItem::new(help, "shortcuts")))
+                .compact(4, Some(HintItem::new(help, "快捷键")))
                 .render(inner, buf);
             return;
         }
@@ -3302,16 +3302,16 @@ fn render_footer(
             };
             let hints = vec![
                 HintItem::new(key!(Enter), toggle),
-                HintItem::new(key!(Tab), "input"),
+                HintItem::new(key!(Tab), "输入"),
             ];
             ShortcutsBar::new(&hints)
-                .compact(4, Some(HintItem::new(help, "shortcuts")))
+                .compact(4, Some(HintItem::new(help, "快捷键")))
                 .render(inner, buf);
             return;
         }
         let mut hints = vec![
-            HintItem::new(key!(Enter), "open"),
-            HintItem::new(key!(Tab), "input"),
+            HintItem::new(key!(Enter), "打开"),
+            HintItem::new(key!(Tab), "输入"),
         ];
         if stoppable {
             // Pinned so the stop chip always survives compact
@@ -3319,7 +3319,7 @@ fn render_footer(
             hints.push(HintItem::new(stop, stop_label).pinned());
         }
         ShortcutsBar::new(&hints)
-            .compact(4, Some(HintItem::new(help, "shortcuts")))
+            .compact(4, Some(HintItem::new(help, "快捷键")))
             .render(inner, buf);
         return;
     }
@@ -3350,7 +3350,7 @@ fn render_footer(
         key!('.', CONTROL),
     );
 
-    let help_hint = HintItem::new(help, "shortcuts");
+    let help_hint = HintItem::new(help, "快捷键");
 
     // Submit chord is `send_key` (Enter, or Shift/Alt+Enter in multiline).
     // Ctrl+S is send+open. Empty draft: create/open on the submit chord;
@@ -3365,7 +3365,7 @@ fn render_footer(
         //   focused + non-empty   → Enter sends
         //   otherwise             → Enter opens / attaches
         // Ctrl+S remains send+open whenever there is a non-empty draft.
-        // Esc: no draft → unselect ("New Agent"); with draft → "back".
+        // Esc: no draft → unselect ("新代理"); with draft → "back".
         let esc = key!(Esc);
         // Pending permission / ask-tool: `1-9` selects even while unfocused
         // (handler focuses the panel). Focused + selected option → answer.
@@ -3379,7 +3379,7 @@ fn render_footer(
             .as_ref()
             .is_some_and(|p| p.selected_option.is_some());
         let reply_empty = state.peek_reply.text().trim().is_empty();
-        let esc_label = if reply_empty { "New Agent" } else { "back" };
+        let esc_label = if reply_empty { "新代理" } else { "back" };
         // Pin Esc when it clears a draft (`back`) so compact doesn't drop it
         // behind stop/help — matches how important it is in handle_peek_key.
         let esc_hint = {
@@ -3391,11 +3391,11 @@ fn render_footer(
         // reply unfocused so j/k keep selecting.
         let peek_focused = state.peek.as_ref().map(|p| p.focused).unwrap_or(true);
         let question_focused = peek_focused && has_pending_question;
-        let tab_hint = HintItem::new(key!(Tab), if peek_focused { "list" } else { "input" });
+        let tab_hint = HintItem::new(key!(Tab), if peek_focused { "列表" } else { "输入" });
         // `1-9 select` hint for the question picker (no single bound key).
         let select_hint = HintItem {
             keys: vec![],
-            label: "select".into(),
+            label: "选择".into(),
             custom_display: Some("1-9"),
             description: None,
             pinned: false,
@@ -3406,11 +3406,11 @@ fn render_footer(
             // two-focus toggle the other peek states surface). (↑/↓ still
             // move within the options; the nav chip is dropped to save
             // bottom-bar space.)
-            vec![HintItem::new(enter, "answer"), tab_hint, esc_hint]
+            vec![HintItem::new(enter, "回答"), tab_hint, esc_hint]
         } else if has_pending_question && peek_focused {
             // Question pending, focused, nothing selected — navigation + select.
             let mut h = vec![
-                HintItem::new(enter, "open"),
+                HintItem::new(enter, "打开"),
                 select_hint,
                 tab_hint,
                 esc_hint,
@@ -3424,9 +3424,9 @@ fn render_footer(
             // Right still attaches — surface it so open stays discoverable.
             // Pending question: keep 1-9 select (digits still work unfocused).
             let mut h = vec![
-                HintItem::new(enter, "input"),
+                HintItem::new(enter, "输入"),
                 // Pin open: attach is the replacement for Enter in this mode.
-                HintItem::new(key!(Right), "open").pinned(),
+                HintItem::new(key!(Right), "打开").pinned(),
                 tab_hint,
                 esc_hint,
             ];
@@ -3434,7 +3434,7 @@ fn render_footer(
                 h.insert(2, select_hint);
             }
             if !reply_empty {
-                h.insert(1, HintItem::new(send_open, "send+open"));
+                h.insert(1, HintItem::new(send_open, "发送并打开"));
             }
             if stoppable {
                 h.push(HintItem::new(stop, stop_label).pinned());
@@ -3443,7 +3443,7 @@ fn render_footer(
         } else if has_pending_question {
             // Non-vim unfocused (or other) with a pending question — open + select.
             let mut h = vec![
-                HintItem::new(enter, "open"),
+                HintItem::new(enter, "打开"),
                 select_hint,
                 tab_hint,
                 esc_hint,
@@ -3454,16 +3454,16 @@ fn render_footer(
             h
         } else if peek_focused && !reply_empty {
             vec![
-                HintItem::new(send_key, "send"),
-                HintItem::new(send_open, "send+open"),
+                HintItem::new(send_key, "发送"),
+                HintItem::new(send_open, "发送并打开"),
                 tab_hint,
-                HintItem::new(esc, "back").pinned(),
+                HintItem::new(esc, "返回").pinned(),
             ]
         } else {
             // Focused empty: open is on the submit chord (send_key). Unfocused:
             // bare Enter still attaches.
             let open_key = if peek_focused { send_key } else { enter };
-            let mut h = vec![HintItem::new(open_key, "open"), tab_hint, esc_hint];
+            let mut h = vec![HintItem::new(open_key, "打开"), tab_hint, esc_hint];
             if stoppable {
                 h.push(HintItem::new(stop, stop_label).pinned());
             }
@@ -3474,7 +3474,7 @@ fn render_footer(
         // there's no session under a section header.
         if prompt_empty {
             // ↑↓ navigate, Enter toggles collapse/expand, Esc returns
-            // to the `[+ New Agent]` button.
+            // to the `[+ 新代理]` button.
             let toggle = if state.is_section_collapsed(section) {
                 "expand"
             } else {
@@ -3482,18 +3482,18 @@ fn render_footer(
             };
             vec![
                 HintItem::new(enter, toggle),
-                HintItem::new(key!(Esc), "New Agent"),
+                HintItem::new(key!(Esc), "新代理"),
             ]
         } else {
             // Typed text dispatches a NEW agent (a section header is
             // never a reply target), so surface the same chips as the
-            // `[+ New Agent]` button with a draft: send_key sends (stays
+            // `[+ 新代理]` button with a draft: send_key sends (stays
             // on the dashboard), Ctrl+S sends + opens detail,
             // Shift+Tab cycles the dispatch mode.
             vec![
-                HintItem::new(send_key, "send"),
-                HintItem::new(send_open, "send+open"),
-                HintItem::new(key!(BackTab), "mode"),
+                HintItem::new(send_key, "发送"),
+                HintItem::new(send_open, "发送并打开"),
+                HintItem::new(key!(BackTab), "模式"),
             ]
         }
     } else if state.selected_idle_overflow {
@@ -3501,40 +3501,40 @@ fn render_footer(
         // there's no session under it — no stop chip.
         if prompt_empty {
             let toggle = if state.idle_show_all {
-                "show fewer"
+                "收起"
             } else {
-                "show all"
+                "显示全部"
             };
             vec![
                 HintItem::new(enter, toggle),
-                HintItem::new(key!(Esc), "New Agent"),
+                HintItem::new(key!(Esc), "新代理"),
             ]
         } else {
             vec![
-                HintItem::new(send_key, "send"),
-                HintItem::new(send_open, "send+open"),
-                HintItem::new(key!(BackTab), "mode"),
+                HintItem::new(send_key, "发送"),
+                HintItem::new(send_open, "发送并打开"),
+                HintItem::new(key!(BackTab), "模式"),
             ]
         }
     } else if button_focused {
         let mut h: Vec<HintItem> = vec![];
         if prompt_empty {
-            h.push(HintItem::new(send_key, "create"));
-            h.push(HintItem::new(key!(Tab), "list"));
+            h.push(HintItem::new(send_key, "创建"));
+            h.push(HintItem::new(key!(Tab), "列表"));
         } else {
-            h.push(HintItem::new(send_key, "send"));
-            h.push(HintItem::new(send_open, "send+open"));
+            h.push(HintItem::new(send_key, "发送"));
+            h.push(HintItem::new(send_open, "发送并打开"));
         }
-        h.push(HintItem::new(key!(BackTab), "mode"));
+        h.push(HintItem::new(key!(BackTab), "模式"));
         h
     } else if row_selected {
         let mut h: Vec<HintItem> = vec![];
         if prompt_empty {
-            h.push(HintItem::new(send_key, "open"));
-            h.push(HintItem::new(key!(Tab), "list"));
+            h.push(HintItem::new(send_key, "打开"));
+            h.push(HintItem::new(key!(Tab), "列表"));
         } else {
-            h.push(HintItem::new(send_key, "send"));
-            h.push(HintItem::new(send_open, "send+open"));
+            h.push(HintItem::new(send_key, "发送"));
+            h.push(HintItem::new(send_open, "发送并打开"));
         }
         if stoppable {
             // Pinned so Ctrl+x always shows while an agent row is
@@ -3549,7 +3549,7 @@ fn render_footer(
         // `DashboardState`, but a fall-through keeps the bar
         // populated rather than silently empty.
         vec![
-            HintItem::new(send_key, "create"),
+            HintItem::new(send_key, "创建"),
             HintItem::new(stop, stop_label),
         ]
     };
@@ -4631,7 +4631,7 @@ mod tests {
         );
     }
 
-    /// The `[+ New Agent]` header button paints green (`accent_success`)
+    /// The `[+ 新代理]` header button paints green (`accent_success`)
     /// when focused so the cursor is obvious, and dim gray otherwise.
     #[test]
     fn header_new_agent_button_focused_is_green() {
@@ -4651,7 +4651,7 @@ mod tests {
         assert_eq!(
             buf[(rect.x, rect.y)].fg,
             theme.accent_success,
-            "focused [+ New Agent] must paint green (accent_success), got {:?}",
+            "focused [+ 新代理] must paint green (accent_success), got {:?}",
             buf[(rect.x, rect.y)].fg,
         );
 
@@ -4669,12 +4669,12 @@ mod tests {
         assert_eq!(
             buf2[(rect2.x, rect2.y)].fg,
             theme.gray,
-            "unfocused [+ New Agent] must paint dim gray, got {:?}",
+            "unfocused [+ 新代理] must paint dim gray, got {:?}",
             buf2[(rect2.x, rect2.y)].fg,
         );
     }
 
-    /// The `[+ New Agent]` header button brightens its text on hover
+    /// The `[+ 新代理]` header button brightens its text on hover
     /// (`gray` → `text_primary`, when not focused) so the mouse user
     /// gets clear feedback that it's clickable. Only the foreground
     /// changes — the background stays `bg_base` (no fill). Driven by
@@ -4711,12 +4711,12 @@ mod tests {
         let cell = &buf2[(rect.x, rect.y)];
         assert_eq!(
             cell.fg, theme.text_primary,
-            "hovered [+ New Agent] must use text_primary fg, got {:?}",
+            "hovered [+ 新代理] must use text_primary fg, got {:?}",
             cell.fg,
         );
         assert_eq!(
             cell.bg, theme.bg_base,
-            "hovered [+ New Agent] must keep bg_base (no hover fill), got {:?}",
+            "hovered [+ 新代理] must keep bg_base (no hover fill), got {:?}",
             cell.bg,
         );
 
@@ -4731,12 +4731,12 @@ mod tests {
         let cell3 = &buf3[(rect.x, rect.y)];
         assert_eq!(
             cell3.bg, theme.bg_base,
-            "non-hovered [+ New Agent] must paint on bg_base, got {:?}",
+            "non-hovered [+ 新代理] must paint on bg_base, got {:?}",
             cell3.bg,
         );
         assert_eq!(
             cell3.fg, theme.gray,
-            "non-hovered [+ New Agent] must use gray fg, got {:?}",
+            "non-hovered [+ 新代理] must use gray fg, got {:?}",
             cell3.fg,
         );
     }
@@ -4771,7 +4771,7 @@ mod tests {
     }
 
     /// The header button reads `[+ New Worktree]` when worktree mode is armed
-    /// in a git repo, and `[+ New Agent]` otherwise (off, or armed but not a
+    /// in a git repo, and `[+ 新代理]` otherwise (off, or armed but not a
     /// git repo — worktree mode can't take effect there).
     #[test]
     fn header_button_label_reflects_worktree_mode() {
@@ -4786,8 +4786,8 @@ mod tests {
         render_header(&mut buf, area, &theme, &rows, &mut off, None);
         let text = buf_to_text(&buf);
         assert!(
-            text.contains("[+ New Agent]") && !text.contains("Worktree"),
-            "worktree mode off → [+ New Agent], got: {text:?}",
+            text.contains("[+ 新代理]") && !text.contains("Worktree"),
+            "worktree mode off → [+ 新代理], got: {text:?}",
         );
 
         // Armed in a git repo → worktree button.
@@ -4810,8 +4810,8 @@ mod tests {
         render_header(&mut buf3, area, &theme, &rows, &mut armed_no_git, None);
         let text3 = buf_to_text(&buf3);
         assert!(
-            text3.contains("[+ New Agent]") && !text3.contains("Worktree"),
-            "armed outside a repo → [+ New Agent], got: {text3:?}",
+            text3.contains("[+ 新代理]") && !text3.contains("Worktree"),
+            "armed outside a repo → [+ 新代理], got: {text3:?}",
         );
     }
 
@@ -7396,7 +7396,7 @@ mod tests {
 
     /// On a narrow header the location label truncates against the
     /// leftmost chip's separator instead of painting over the chips
-    /// or the `[+ New Agent]` button.
+    /// or the `[+ 新代理]` button.
     #[test]
     fn render_header_location_label_never_overlaps_chips() {
         let theme = Theme::current();
@@ -7413,7 +7413,7 @@ mod tests {
         render_header(&mut buf, area, &theme, &rows, &mut state, None);
         let content = buf_to_text(&buf);
         // Chips and button must survive the (long) location label.
-        for chunk in ["1 awaiting", "1 working", "1 idle", "[+ New Agent]"] {
+        for chunk in ["1 awaiting", "1 working", "1 idle", "[+ 新代理]"] {
             assert!(
                 content.contains(chunk),
                 "`{chunk}` must not be overpainted by the location label, got: {content:?}",
@@ -7589,7 +7589,7 @@ mod tests {
     }
 
     /// When peek is active, the footer flips to peek-
-    /// mode hints (`enter:open · esc:New Agent · ctrl+x:close`). The
+    /// mode hints (`enter:open · esc:新代理 · ctrl+x:close`). The
     /// nav chip is dropped (saving space) and the Ctrl+x chip stays
     /// visible while the agent is selected.
     #[test]
@@ -7610,8 +7610,8 @@ mod tests {
         );
         let content = buf_to_text(&buf);
         assert!(
-            content.contains(":open") && content.contains(":New Agent"),
-            "peek-mode footer must include open + New Agent (unselect) hints, got: {content:?}",
+            content.contains(":open") && content.contains(":新代理"),
+            "peek-mode footer must include open + 新代理 (unselect) hints, got: {content:?}",
         );
         // The stop chip stays visible while an agent is selected. With
         // no row state passed (None) the label is the idle-style `close`.
@@ -7726,7 +7726,7 @@ mod tests {
     }
 
     /// Non-vim unfocused peek with a typed draft: Esc clears the draft first
-    /// (`back`), not New Agent.
+    /// (`back`), not 新代理.
     #[test]
     fn render_footer_peek_unfocused_with_draft_esc_is_back() {
         crate::appearance::cache::set_vim_mode(false);
@@ -7768,8 +7768,8 @@ mod tests {
             "unfocused peek with draft must show Esc:back, got: {content:?}",
         );
         assert!(
-            !content.contains("New Agent"),
-            "must not label Esc as New Agent while a draft remains, got: {content:?}",
+            !content.contains("新代理"),
+            "must not label Esc as 新代理 while a draft remains, got: {content:?}",
         );
     }
 
@@ -7933,7 +7933,7 @@ mod tests {
             !content.contains(":send"),
             "empty-prompt footer must NOT include `:send` chip, got: {content:?}",
         );
-        // Two-focus discoverability — mirrors the `[+ New Agent]`
+        // Two-focus discoverability — mirrors the `[+ 新代理]`
         // button's empty-prompt chip: Tab hands focus to the list.
         assert!(
             content.contains(":list"),
@@ -8080,7 +8080,7 @@ mod tests {
     }
 
     /// When a section header is selected the footer shows the toggle
-    /// (Enter:collapse / :expand) and `Esc:New Agent`, and omits the
+    /// (Enter:collapse / :expand) and `Esc:新代理`, and omits the
     /// stop chip (no session under a header).
     #[test]
     fn render_footer_section_selected_shows_toggle_no_stop() {
@@ -8107,8 +8107,8 @@ mod tests {
             "expanded section footer must hint Enter:collapse, got: {content:?}",
         );
         assert!(
-            content.contains("New Agent"),
-            "section footer must hint Esc:New Agent, got: {content:?}",
+            content.contains("新代理"),
+            "section footer must hint Esc:新代理, got: {content:?}",
         );
         assert!(
             !content.contains(":stop") && !content.contains(":close"),
@@ -8295,7 +8295,7 @@ mod tests {
         );
     }
 
-    /// When the `[+ New Agent]` button is focused AND the
+    /// When the `[+ 新代理]` button is focused AND the
     /// user has typed, Enter sends (stays on dashboard) and
     /// Ctrl+S sends + opens detail. Stop chip is suppressed
     /// because the button has no underlying session to close.

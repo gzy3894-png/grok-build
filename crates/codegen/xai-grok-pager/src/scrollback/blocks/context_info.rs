@@ -9,12 +9,23 @@
 
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
+use unicode_width::UnicodeWidthStr;
 
 use crate::render::wrapping::word_wrap_lines;
 use crate::scrollback::block::BlockContent;
 use crate::scrollback::types::{AccentStyle, BlockContext, BlockLine, BlockOutput};
 use crate::theme::{Theme, quantize};
 use xai_grok_shell::session::{ContextInfo, count_detail};
+
+/// Separator between label/stats segments.
+///
+/// Prefer ASCII `|` over U+00B7 MIDDLE DOT: the middot is East-Asian
+/// *ambiguous* width, and on Chinese Windows terminals (CJK fonts) it often
+/// renders double-wide while `unicode-width` still counts it as 1. That
+/// desync eats the first cell of the following CJK run — users see
+/// `终批准` / `具调用` / `缩次数` instead of the full phrases. ASCII is
+/// always one column on both sides.
+const SEP: &str = " | ";
 
 /// Block that renders a `/context` snapshot in scrollback.
 ///
@@ -141,29 +152,37 @@ struct RowLayout {
 }
 
 impl RowLayout {
-    /// Measure column widths over every row that will render. Widths are
-    /// in codepoints, not bytes.
+    /// Measure column widths over every row that will render.
+    ///
+    /// Widths are **display columns** ([`UnicodeWidthStr`]), not codepoints —
+    /// CJK labels are two columns each, so padding with `chars().count()`
+    /// under-pads and lets later numeric columns collide with the label on
+    /// CJK terminals.
     fn measure<'a>(rows: impl Iterator<Item = &'a LegendRow> + Clone, total: u64) -> Self {
         Self {
             label_width: rows
                 .clone()
-                .map(|r| r.label.chars().count())
+                .map(|r| UnicodeWidthStr::width(r.label.as_str()))
                 .max()
                 .unwrap_or(0)
                 + 1,
             tokens_width: rows
                 .clone()
-                .map(|r| fmt_tok(r.tokens).chars().count())
+                .map(|r| UnicodeWidthStr::width(fmt_tok(r.tokens).as_str()))
                 .max()
                 .unwrap_or(0),
             percent_width: rows
                 .clone()
-                .map(|r| Self::percent(r.tokens, total).chars().count())
+                .map(|r| UnicodeWidthStr::width(Self::percent(r.tokens, total).as_str()))
                 .max()
                 .unwrap_or(0),
             count_width: rows
                 .filter_map(|r| r.detail.as_deref())
-                .filter_map(|d| d.split(' ').next().map(|n| n.chars().count()))
+                .filter_map(|d| {
+                    d.split(' ')
+                        .next()
+                        .map(|n| UnicodeWidthStr::width(n))
+                })
                 .max()
                 .unwrap_or(0),
         }
@@ -186,18 +205,31 @@ impl RowLayout {
     }
 
     /// The detail suffix with the leading count right-aligned so the nouns
-    /// line up: `" · 25 tools"` over `" ·  1 server"`. Details follow the
+    /// line up: `" | 25 个工具"` over `" |  1 个服务器"`. Details follow the
     /// `TokenUsageCategory::detail` count-then-noun convention; text with
     /// no space renders unaligned.
     fn detail_suffix(&self, detail: &str) -> String {
         match detail.split_once(' ') {
             Some((count, rest)) => {
-                format!(
-                    " \u{00b7} {count:>count_width$} {rest}",
-                    count_width = self.count_width
-                )
+                let pad = self
+                    .count_width
+                    .saturating_sub(UnicodeWidthStr::width(count));
+                format!("{SEP}{}{count} {rest}", " ".repeat(pad))
             }
-            None => format!(" \u{00b7} {detail}"),
+            None => format!("{SEP}{detail}"),
+        }
+    }
+
+    /// Pad `s` on the right to `width` **display columns**.
+    ///
+    /// `format!("{:<n$}")` pads by Unicode scalar count, which under-pads
+    /// CJK (each char is 2 columns). Use this helper for column alignment.
+    fn pad_display(s: &str, width: usize) -> String {
+        let w = UnicodeWidthStr::width(s);
+        if w >= width {
+            s.to_string()
+        } else {
+            format!("{s}{}", " ".repeat(width - w))
         }
     }
 
@@ -212,7 +244,12 @@ impl RowLayout {
         label_style: Style,
         muted: Style,
     ) -> Vec<Line<'static>> {
-        let glyph = Span::styled(format!("{} ", row.glyph), Style::default().fg(row.color));
+        // Two trailing spaces after the glyph: diamonds / circles are
+        // East-Asian *ambiguous* width and on CJK Windows fonts often paint
+        // double-wide while unicode-width still counts them as 1. The extra
+        // pad cell absorbs the overflow so the first CJK label char is not
+        // eaten (e.g. `空闲` rendering as `闲`).
+        let glyph = Span::styled(format!("{}  ", row.glyph), Style::default().fg(row.color));
         let suffix = row.detail.as_deref().map(|d| self.detail_suffix(d));
         if bar == BarLayout::NARROW {
             let first = Line::from(vec![glyph, Span::styled(row.label.clone(), label_style)]);
@@ -235,11 +272,7 @@ impl RowLayout {
             let mut spans = vec![
                 glyph,
                 Span::styled(
-                    format!(
-                        "{:<label_width$}",
-                        row.label,
-                        label_width = self.label_width
-                    ),
+                    Self::pad_display(&row.label, self.label_width),
                     label_style,
                 ),
                 Span::raw(" "),
@@ -407,7 +440,7 @@ impl ContextInfoBlock {
             color: tools_color,
             label: "工具定义".to_string(),
             tokens: tool_tokens,
-            detail: Some(count_detail(tool_count, "tool")),
+            detail: Some(count_detail(tool_count, "工具")),
         })
         .chain(snapshot.usage_categories.iter().map(|c| LegendRow {
             glyph: tools_glyph,
@@ -491,7 +524,7 @@ impl ContextInfoBlock {
                 // `~1000k tokens remaining`.
                 (
                     format!(
-                        "自动压缩阈值 {threshold_percent}% \u{00b7} 约剩 {} tokens",
+                        "自动压缩阈值 {threshold_percent}%{SEP}约剩 {} tokens",
                         fmt_tok_big(remaining)
                     ),
                     muted,
@@ -504,7 +537,7 @@ impl ContextInfoBlock {
         // Footer stats
         lines.push(Line::from(Span::styled(
             format!(
-                "回合: {turn_count} \u{00b7} 工具调用: {tool_call_count} \u{00b7} 压缩次数: {compaction_count}"
+                "回合: {turn_count}{SEP}工具调用: {tool_call_count}{SEP}压缩次数: {compaction_count}"
             ),
             muted,
         )));
@@ -709,7 +742,7 @@ mod tests {
         let theme = test_theme();
         let lines = block.build_lines(&theme, BarLayout::WIDE);
         // Layout: Context / <blank> / tokens / model.
-        assert_eq!(line_text(&lines, 0), "Context");
+        assert_eq!(line_text(&lines, 0), "上下文");
         assert_eq!(line_text(&lines, 1), "");
         let l2 = line_text(&lines, 2);
         assert!(l2.contains("tokens"));
@@ -783,8 +816,8 @@ mod tests {
         let lines = block.build_lines(&theme, BarLayout::WIDE);
         let all = all_text(&lines);
         assert!(
-            all.contains("Auto-compact at 85%") && all.contains("tokens remaining"),
-            "expected `Auto-compact at 85% · ~X tokens remaining` line, got:\n{all}"
+            all.contains("自动压缩阈值 85%") && all.contains("约剩"),
+            "expected `自动压缩阈值 85% | 约剩 X tokens` line, got:\n{all}"
         );
     }
 
@@ -801,7 +834,7 @@ mod tests {
         let lines = block.build_lines(&theme, BarLayout::WIDE);
         let all = all_text(&lines);
         assert!(
-            all.contains("~3.4m tokens remaining"),
+            all.contains("约剩 3.4m tokens"),
             "expected ETA to use millions, got:\n{all}"
         );
     }
@@ -814,8 +847,8 @@ mod tests {
         let lines = block.build_lines(&theme, BarLayout::WIDE);
         let all = all_text(&lines);
         assert!(
-            all.contains("~813k tokens remaining"),
-            "expected `~813k tokens remaining`, got:\n{all}"
+            all.contains("约剩 813k tokens"),
+            "expected `约剩 813k tokens`, got:\n{all}"
         );
     }
 
@@ -868,8 +901,8 @@ mod tests {
         let lines = block.build_lines(&theme, BarLayout::WIDE);
         let all = all_text(&lines);
         assert!(
-            all.contains("Auto-compact triggers next turn"),
-            "expected `Auto-compact triggers next turn` line, got:\n{all}"
+            all.contains("下次回合将自动压缩"),
+            "expected auto-compact imminent line, got:\n{all}"
         );
     }
 

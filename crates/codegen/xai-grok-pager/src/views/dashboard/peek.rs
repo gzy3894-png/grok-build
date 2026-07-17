@@ -317,7 +317,7 @@ pub fn compute_peek_fields(
                     let reject = if qv.no_freeform {
                         None
                     } else {
-                        opts.push(("__other__".to_string(), "Other".to_string()));
+                        opts.push(("__other__".to_string(), "其他".to_string()));
                         Some(opts.len() - 1)
                     };
                     // Prefix a `(i/N)` position marker for multi-question
@@ -361,7 +361,7 @@ pub fn compute_peek_fields(
             let child = parent_agent.subagent_views.get(child_session_id);
             let response_type = child
                 .map(|c| extract_last_response_type(c))
-                .unwrap_or_else(|| "Subagent".to_string());
+                .unwrap_or_else(|| "子代理".to_string());
             let last_user_message = child.and_then(|c| extract_last_user_message(c));
             let (last_agent_lines, last_response_truncated) = child
                 .map(|c| extract_last_agent_lines(c, 3))
@@ -714,9 +714,9 @@ pub fn render_peek_panel(
                         // unfocused-only placeholder) so the hint stays
                         // visible while the caret sits on the row.
                         let placeholder_text = if panel.is_ask_question() {
-                            "Other (type your own answer)"
+                            "其他（输入你的回答）"
                         } else {
-                            "No, reject (type to add feedback)"
+                            "否，拒绝（输入反馈）"
                         };
                         let placeholder = truncate_str(placeholder_text, avail as usize);
                         buf.set_string(
@@ -783,7 +783,7 @@ pub fn render_peek_panel(
         // secondary (a touch brighter than the dim chrome) and the previous
         // response is hidden entirely (below), so the panel signals "still
         // running" without dwelling on a now-stale answer.
-        let working = panel.response_type == "Working";
+        let working = panel.response_type == "工作中";
         let label_fg = if working {
             theme.text_secondary
         } else {
@@ -883,7 +883,7 @@ pub fn render_peek_panel(
         vpad_top: 0,
         chrome: false,
         bg_override: Some(theme.bg_base),
-        placeholder_override: Some("reply\u{2026}"),
+        placeholder_override: Some("回复\u{2026}"),
         image_preview: false,
         ..PromptStyle::default()
     };
@@ -937,7 +937,7 @@ pub fn render_peek_panel(
 /// that state (see `render_peek_panel`), so the box shouldn't reserve rows
 /// for it.
 pub fn response_row_count(panel: &PeekPanelState, width: usize, cap: usize) -> usize {
-    if width == 0 || cap == 0 || panel.response_type == "Working" {
+    if width == 0 || cap == 0 || panel.response_type == "工作中" {
         return 0;
     }
     let mut rows = 0usize;
@@ -1074,21 +1074,21 @@ pub fn extract_last_response_type(agent: &AgentView) -> String {
     // execution or waiting for results.
     if running {
         match agent.session.turn_activity() {
-            Some(TurnActivity::Thinking) => return "Thinking".to_string(),
-            Some(TurnActivity::Responding) => return "Response".to_string(),
-            Some(TurnActivity::AutoCompacting) => return "Compacting".to_string(),
-            Some(TurnActivity::Retrying { .. }) => return "Retrying".to_string(),
+            Some(TurnActivity::Thinking) => return "思考中".to_string(),
+            Some(TurnActivity::Responding) => return "回复中".to_string(),
+            Some(TurnActivity::AutoCompacting) => return "压缩中".to_string(),
+            Some(TurnActivity::Retrying { .. }) => return "重试中".to_string(),
             // A tool is executing: fall through to the scan to recover its
             // specific label (Bash/Read/…); a missing/stale block yields the
             // generic "Working" fallback below.
             Some(TurnActivity::ToolRunning { .. }) => {}
             // Blocked on a suppressed tool (task output / wait / sleep) → keep
             // the compact "Working" the peek showed before this was surfaced.
-            Some(TurnActivity::Waiting(_)) => return "Working".to_string(),
+            Some(TurnActivity::Waiting(_)) => return "工作中".to_string(),
             // Turn running but no live activity (e.g. just granted a
             // permission and waiting for tool results / the next inference) →
             // "Working", never a stale response.
-            None => return "Working".to_string(),
+            None => return "工作中".to_string(),
         }
     }
     let len = agent.scrollback.len();
@@ -1105,10 +1105,10 @@ pub fn extract_last_response_type(agent: &AgentView) -> String {
                 if running {
                     break;
                 }
-                return "Response".to_string();
+                return "回复".to_string();
             }
             RenderBlock::Thinking(_) => {
-                return if running { "Thinking" } else { "Thought" }.to_string();
+                return if running { "思考中" } else { "已思考" }.to_string();
             }
             RenderBlock::ToolCall(tc) => {
                 let label = match tc {
@@ -1131,11 +1131,11 @@ pub fn extract_last_response_type(agent: &AgentView) -> String {
                     return label.to_string();
                 }
             }
-            RenderBlock::Subagent(_) => return "Subagent".to_string(),
-            RenderBlock::BgTask(_) => return "Task".to_string(),
+            RenderBlock::Subagent(_) => return "子代理".to_string(),
+            RenderBlock::BgTask(_) => return "任务".to_string(),
             RenderBlock::Btw(_) => return "Btw".to_string(),
-            RenderBlock::ContextInfo(_) => return "Context".to_string(),
-            RenderBlock::CreditLimit(_) => return "Credit limit".to_string(),
+            RenderBlock::ContextInfo(_) => return "上下文".to_string(),
+            RenderBlock::CreditLimit(_) => return "额度限制".to_string(),
             // The user's latest input marks the turn boundary — there's
             // no agent response after it yet.
             RenderBlock::UserPrompt(_) => break,
@@ -1144,9 +1144,9 @@ pub fn extract_last_response_type(agent: &AgentView) -> String {
         }
     }
     if running {
-        "Working".to_string()
+        "工作中".to_string()
     } else {
-        "Idle".to_string()
+        "空闲".to_string()
     }
 }
 
@@ -1326,7 +1326,7 @@ fn block_short_text(block: &crate::scrollback::block::RenderBlock) -> Option<Str
     match block {
         RenderBlock::UserPrompt(b) => Some(format!("\u{2771} {}", first_line_of(&b.text))),
         RenderBlock::AgentMessage(b) => Some(first_line_of(&b.text())),
-        RenderBlock::Thinking(b) => Some(format!("(thinking) {}", first_line_of(&b.text()))),
+        RenderBlock::Thinking(b) => Some(format!("(思考中) {}", first_line_of(&b.text()))),
         RenderBlock::System(_) => Some("(system event)".to_string()),
         RenderBlock::SessionEvent(_) => Some("(session event)".to_string()),
         RenderBlock::ToolCall(_) => Some("(tool call)".to_string()),

@@ -42,40 +42,40 @@ fn is_interval_token(s: &str) -> bool {
         && digits.parse::<u64>().is_ok_and(|n| n > 0)
 }
 
-/// Convert an interval token like "5m" to a human string like "every 5 minutes".
+/// Convert an interval token like "5m" to a human string like "每 5 分钟".
 fn interval_to_human(token: &str) -> String {
     let (digits, suffix) = token.split_at(token.len() - 1);
     let n: u64 = digits.parse().unwrap_or(0);
     match suffix {
         "s" => {
             if n <= 1 {
-                "every 1 second".into()
+                "每 1 秒".into()
             } else {
-                format!("every {n} seconds")
+                format!("每 {n} 秒")
             }
         }
         "m" => {
             if n == 1 {
-                "every 1 minute".into()
+                "每 1 分钟".into()
             } else {
-                format!("every {n} minutes")
+                format!("每 {n} 分钟")
             }
         }
         "h" => {
             if n == 1 {
-                "every 1 hour".into()
+                "每 1 小时".into()
             } else {
-                format!("every {n} hours")
+                format!("每 {n} 小时")
             }
         }
         "d" => {
             if n == 1 {
-                "every 1 day".into()
+                "每 1 天".into()
             } else {
-                format!("every {n} days")
+                format!("每 {n} 天")
             }
         }
-        _ => format!("every {token}"),
+        _ => format!("每 {token}"),
     }
 }
 
@@ -121,7 +121,7 @@ impl SlashCommand for LoopCommand {
         // replaces this provisional entry.
         let human_schedule = match interval_token {
             Some(token) => interval_to_human(token),
-            None => "scheduling…".to_string(),
+            None => "调度中…".to_string(),
         };
 
         CommandResult::InjectSkill {
@@ -244,13 +244,13 @@ mod tests {
 
     #[test]
     fn interval_to_human_formats() {
-        assert_eq!(interval_to_human("5m"), "every 5 minutes");
-        assert_eq!(interval_to_human("1m"), "every 1 minute");
-        assert_eq!(interval_to_human("2h"), "every 2 hours");
-        assert_eq!(interval_to_human("1h"), "every 1 hour");
-        assert_eq!(interval_to_human("1d"), "every 1 day");
-        assert_eq!(interval_to_human("7d"), "every 7 days");
-        assert_eq!(interval_to_human("60s"), "every 60 seconds");
+        assert_eq!(interval_to_human("5m"), "每 5 分钟");
+        assert_eq!(interval_to_human("1m"), "每 1 分钟");
+        assert_eq!(interval_to_human("2h"), "每 2 小时");
+        assert_eq!(interval_to_human("1h"), "每 1 小时");
+        assert_eq!(interval_to_human("1d"), "每 1 天");
+        assert_eq!(interval_to_human("7d"), "每 7 天");
+        assert_eq!(interval_to_human("60s"), "每 60 秒");
     }
 
     fn run_loop(args: &str) -> CommandResult {
@@ -273,7 +273,7 @@ mod tests {
                 scheduled_task_preview: Some(preview),
                 ..
             } => {
-                assert_eq!(preview.human_schedule, "every 30 minutes");
+                assert_eq!(preview.human_schedule, "每 30 分钟");
                 assert_eq!(preview.prompt, "check deploy status");
             }
             other => panic!("expected InjectSkill with preview, got {other:?}"),
@@ -288,8 +288,8 @@ mod tests {
                 ..
             } => {
                 // No fabricated cadence — the model fills in the real schedule.
-                assert_eq!(preview.human_schedule, "scheduling…");
-                assert_ne!(preview.human_schedule, "every 10 minutes");
+                assert_eq!(preview.human_schedule, "调度中…");
+                assert_ne!(preview.human_schedule, "每 10 分钟");
                 assert_eq!(preview.prompt, "check deploy status every 30 minutes");
             }
             other => panic!("expected InjectSkill with preview, got {other:?}"),
@@ -305,7 +305,7 @@ mod tests {
                 scheduled_task_preview: Some(preview),
                 ..
             } => {
-                assert_eq!(preview.human_schedule, "scheduling…");
+                assert_eq!(preview.human_schedule, "调度中…");
                 assert_eq!(preview.prompt, "5m");
             }
             other => panic!("expected InjectSkill with preview, got {other:?}"),

@@ -19,7 +19,7 @@ impl SlashCommand for ImagineCommand {
     }
 
     fn usage(&self) -> &str {
-        "/imagine <description>"
+        "/imagine <描述>"
     }
 
     fn takes_args(&self) -> bool {
@@ -31,7 +31,7 @@ impl SlashCommand for ImagineCommand {
     }
 
     fn arg_placeholder(&self) -> Option<&str> {
-        Some("description of the image to generate")
+        Some("图片描述")
     }
 
     fn required_tools(&self) -> &[&str] {

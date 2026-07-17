@@ -67,7 +67,7 @@ impl SlashCommand for ModelCommand {
     fn run(&self, ctx: &mut CommandExecCtx, args: &str) -> CommandResult {
         let trimmed = args.trim();
         if trimmed.is_empty() {
-            return CommandResult::Error("Usage: /model <name> [effort]".into());
+            return CommandResult::Error("用法：/model <name> [effort]".into());
         }
 
         // Prefer an exact full-string catalog match first. Model display names
@@ -100,7 +100,7 @@ impl SlashCommand for ModelCommand {
             };
         }
 
-        CommandResult::Error(format!("Unknown model: {trimmed}"))
+        CommandResult::Error(format!("未知模型：{trimmed}"))
     }
 }
 
@@ -158,7 +158,7 @@ fn build_model_items(models: &ModelState) -> Vec<ArgItem> {
         let supports = supports_reasoning_effort(info);
 
         let display = if is_current {
-            format!("{} (current)", info.name)
+            format!("{}（当前）", info.name)
         } else {
             info.name.clone()
         };

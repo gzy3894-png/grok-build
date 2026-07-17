@@ -65,18 +65,18 @@ impl SlashCommand for TerminalSetupCommand {
         let mut out = String::new();
 
         // -- Environment --
-        out.push_str("Environment\n");
-        out.push_str(&format!("  terminal     {}\n", ctx.brand));
+        out.push_str("环境\n");
+        out.push_str(&format!("  终端         {}\n", ctx.brand));
         if let Some(v) = crate::terminal::xtversion::detected() {
-            out.push_str(&format!("  xtversion    {}\n", v));
+            out.push_str(&format!("  终端版本     {}\n", v));
         }
-        out.push_str(&format!("  multiplexer  {}\n", ctx.multiplexer));
+        out.push_str(&format!("  多路复用     {}\n", ctx.multiplexer));
         if let Some(ref byobu) = ctx.byobu {
-            out.push_str(&format!("  byobu        {}\n", byobu));
+            out.push_str(&format!("  Byobu        {}\n", byobu));
         }
         out.push_str(&format!(
             "  ssh          {}\n",
-            if is_ssh { "yes" } else { "no" }
+            if is_ssh { "是" } else { "否" }
         ));
         out.push_str(&crate::diagnostics::format_color_env_line(color_level));
         out.push_str(&crate::diagnostics::format_themes_env_line(color_level));
@@ -84,12 +84,12 @@ impl SlashCommand for TerminalSetupCommand {
         let kb = ctx.keyboard_capabilities();
         if kb.modifier_delivery.benefits_from_rescue() || kb.enter_needs_rescue() {
             let rescue = if cfg!(target_os = "macos") {
-                "OS rescue active"
+                "系统补救已启用"
             } else {
-                "OS rescue unavailable on this platform"
+                "本平台无系统补救"
             };
             out.push_str(&format!(
-                "  keyboard     {} ({})\n",
+                "  键盘         {} ({})\n",
                 kb.modifier_delivery.label(),
                 rescue
             ));
@@ -105,8 +105,8 @@ impl SlashCommand for TerminalSetupCommand {
         if ctx.shift_enter_unavailable() && !wezterm_kkp_off {
             let detail = if ctx.vte_version.is_some() || ctx.brand == TerminalName::Vte {
                 match ctx.vte_version.as_deref() {
-                    Some(v) => format!("VTE {v}; need >= 8200 for Shift+Enter"),
-                    None => "legacy VTE; need VTE >= 0.82 for Shift+Enter".to_owned(),
+                    Some(v) => format!("VTE {v}；Shift+Enter 需要 >= 8200"),
+                    None => "旧版 VTE；Shift+Enter 需要 VTE >= 0.82".to_owned(),
                 }
             } else if matches!(
                 ctx.brand,
@@ -115,27 +115,27 @@ impl SlashCommand for TerminalSetupCommand {
                     | TerminalName::Windsurf
                     | TerminalName::Zed
             ) {
-                format!("{}: xterm.js can't distinguish Shift+Enter", ctx.brand)
+                format!("{}：xterm.js 无法区分 Shift+Enter", ctx.brand)
             } else {
-                "no Kitty keyboard protocol; Shift+Enter == Enter".to_owned()
+                "无 Kitty 键盘协议；Shift+Enter 等同 Enter".to_owned()
             };
-            out.push_str(&format!("  newline      Alt+Enter ({detail})\n"));
+            out.push_str(&format!("  换行         Alt+Enter（{detail}）\n"));
         }
 
         // -- Clipboard --
-        out.push_str("\nClipboard routes\n");
+        out.push_str("\n剪贴板路径\n");
         out.push_str(&format!(
-            "  native       {}  (tool: {})\n",
-            if route.native { "active" } else { "off" },
+            "  native       {}  (工具: {})\n",
+            if route.native { "启用" } else { "关闭" },
             xai_grok_shell::util::clipboard::native_tool_name(),
         ));
         out.push_str(&format!(
             "  tmux buffer  {}\n",
-            if route.tmux_buffer { "active" } else { "off" }
+            if route.tmux_buffer { "启用" } else { "关闭" }
         ));
         out.push_str(&format!(
             "  osc 52       {}\n",
-            if route.osc52 { "active" } else { "off" }
+            if route.osc52 { "启用" } else { "关闭" }
         ));
         out.push_str(&format!(
             "  data-control {}\n",
@@ -144,22 +144,22 @@ impl SlashCommand for TerminalSetupCommand {
 
         // -- Diagnostics --
         if warnings.is_empty() {
-            out.push_str("\nNo issues found.\n");
+            out.push_str("\n未发现问题。\n");
         } else {
-            out.push_str(&format!("\n{} issue(s)\n", warnings.len()));
+            out.push_str(&format!("\n{} 个问题\n", warnings.len()));
             for w in &warnings {
                 out.push_str(&format!("\n  [!] {}\n", w.message));
                 match (w.fix.as_deref(), w.config_path.as_deref()) {
                     (Some(fix), Some(path)) => {
-                        out.push_str(&format!("      Fix: place `{}` in {}\n", fix, path));
+                        out.push_str(&format!("      修复：将 `{}` 写入 {}\n", fix, path));
                     }
                     (Some(fix), None) => {
-                        out.push_str(&format!("      Fix: run `{}`\n", fix));
+                        out.push_str(&format!("      修复：运行 `{}`\n", fix));
                     }
                     _ => {}
                 }
                 if let Some(note) = w.note.as_deref() {
-                    out.push_str(&format!("      Note: {}\n", note));
+                    out.push_str(&format!("      说明：{}\n", note));
                 }
             }
         }

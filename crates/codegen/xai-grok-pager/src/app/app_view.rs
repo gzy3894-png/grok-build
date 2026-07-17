@@ -2899,7 +2899,7 @@ fn handle_welcome_input(ev: &Event, ctx: &mut WelcomeInputCtx<'_>) -> InputOutco
         let entry_count = entry_map.len();
         let non_selectable_flags: Vec<bool> = entry_map.iter().map(|e| e.is_none()).collect();
         let config = PickerConfig {
-            title: Some("Resume session"),
+            title: Some("恢复会话"),
             show_search_hint: true,
             expandable: true,
             esc_clears_query: true,
@@ -3317,7 +3317,7 @@ fn handle_welcome_input(ev: &Event, ctx: &mut WelcomeInputCtx<'_>) -> InputOutco
                     && let Some(md) = ctx.changelog_markdown.as_deref()
                 {
                     return InputOutcome::Action(Action::ShowReleaseNotes {
-                        title: "Release Notes".to_string(),
+                        title: "发行说明".to_string(),
                         content: md.trim().to_string(),
                     });
                 }
@@ -3516,7 +3516,7 @@ fn dispatch_menu_action(
     if Some(index) == changelog_idx {
         if let Some(md) = changelog_md {
             return InputOutcome::Action(Action::ShowReleaseNotes {
-                title: "Release Notes".to_string(),
+                title: "发行说明".to_string(),
                 content: md.trim().to_string(),
             });
         }

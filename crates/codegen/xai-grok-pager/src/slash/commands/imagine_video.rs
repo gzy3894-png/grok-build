@@ -20,7 +20,7 @@ impl SlashCommand for ImagineVideoCommand {
     }
 
     fn usage(&self) -> &str {
-        "/imagine-video <description>"
+        "/imagine-video <描述>"
     }
 
     fn takes_args(&self) -> bool {
@@ -32,7 +32,7 @@ impl SlashCommand for ImagineVideoCommand {
     }
 
     fn arg_placeholder(&self) -> Option<&str> {
-        Some("description of the video to generate")
+        Some("视频描述")
     }
 
     fn required_tools(&self) -> &[&str] {

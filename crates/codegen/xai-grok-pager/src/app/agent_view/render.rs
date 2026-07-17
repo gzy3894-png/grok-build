@@ -84,23 +84,23 @@ impl AgentView {
         match pav.focus {
             PlanApprovalFocus::Commenting => {
                 vec![
-                    HintItem::new(key!(Enter), "save comment"),
-                    HintItem::new(key!(Esc), "cancel"),
+                    HintItem::new(key!(Enter), "保存评论"),
+                    HintItem::new(key!(Esc), "取消"),
                 ]
             }
             PlanApprovalFocus::Prompt => {
                 let has_content = !pav.comments.is_empty() || !self.prompt.text().trim().is_empty();
                 if has_content {
                     vec![
-                        HintItem::new(key!(Enter), "request changes"),
-                        HintItem::new(key!(Tab), "plan"),
-                        HintItem::new(key!(Esc), "back"),
+                        HintItem::new(key!(Enter), "请求修改"),
+                        HintItem::new(key!(Tab), "计划"),
+                        HintItem::new(key!(Esc), "返回"),
                     ]
                 } else {
                     vec![
-                        HintItem::new(key!(Enter), "approve"),
-                        HintItem::new(key!(Tab), "plan"),
-                        HintItem::new(key!(Esc), "back"),
+                        HintItem::new(key!(Enter), "批准"),
+                        HintItem::new(key!(Tab), "计划"),
+                        HintItem::new(key!(Esc), "返回"),
                     ]
                 }
             }
@@ -129,8 +129,8 @@ impl AgentView {
                 match perm.focus {
                     PermissionFocus::FollowupInput => {
                         vec![
-                            HintItem::new(key!(Enter), "send"),
-                            HintItem::new(key!(Esc), "back"),
+                            HintItem::new(key!(Enter), "发送"),
+                            HintItem::new(key!(Esc), "返回"),
                         ]
                     }
                     PermissionFocus::Options => {
@@ -139,9 +139,9 @@ impl AgentView {
                         let n = perm.options.len().min(9) as u8;
                         let last_ch = char::from(b'0' + n.max(1));
                         let last_key = KeyShortcut::new(KeyCode::Char(last_ch), KeyModifiers::NONE);
-                        let mut hints = vec![HintItem::paired(key!('1'), last_key, "select")];
+                        let mut hints = vec![HintItem::paired(key!('1'), last_key, "选择")];
                         if perm.has_adjustable_scope() {
-                            hints.push(HintItem::paired(key!(Left), key!(Right), "scope"));
+                            hints.push(HintItem::paired(key!(Left), key!(Right), "范围"));
                         }
                         if !perm.description.is_empty() {
                             let label = if perm.args_expanded {
@@ -151,8 +151,8 @@ impl AgentView {
                             };
                             hints.push(HintItem::new(key!('f', CONTROL), label));
                         }
-                        hints.push(HintItem::new(key!('o', CONTROL), "always-approve"));
-                        hints.push(HintItem::new(key!('c', CONTROL), "cancel"));
+                        hints.push(HintItem::new(key!('o', CONTROL), "始终批准"));
+                        hints.push(HintItem::new(key!('c', CONTROL), "取消"));
                         hints
                     }
                 }
@@ -170,18 +170,18 @@ impl AgentView {
                 vec![]
             } else if self.is_casual_commenting() {
                 vec![
-                    HintItem::new(key!(Enter), "save comment"),
-                    HintItem::new(key!(Esc), "cancel"),
+                    HintItem::new(key!(Enter), "保存评论"),
+                    HintItem::new(key!(Esc), "取消"),
                 ]
             } else {
                 let mut h = vec![
-                    HintItem::new(key!('c'), "comment"),
-                    HintItem::new(key!('f', CONTROL), "fullscreen"),
+                    HintItem::new(key!('c'), "评论"),
+                    HintItem::new(key!('f', CONTROL), "全屏"),
                 ];
                 if !self.plan_comments.is_empty() {
-                    h.push(HintItem::new(key!('s'), "send"));
+                    h.push(HintItem::new(key!('s'), "发送"));
                 }
-                h.push(HintItem::new(key!(Esc), "close"));
+                h.push(HintItem::new(key!(Esc), "关闭"));
                 h
             }
         } else if let Some(ref qv) = self.question_view {
@@ -190,32 +190,32 @@ impl AgentView {
                 QuestionFocus::InputMode => {
                     if self.prompt.file_search_visible() {
                         vec![
-                            HintItem::paired(key!(Up), key!(Down), "nav"),
-                            HintItem::new(key!(Tab), "accept"),
-                            HintItem::new(key!(Right), "drill"),
-                            HintItem::new(key!(Esc), "dismiss"),
+                            HintItem::paired(key!(Up), key!(Down), "导航"),
+                            HintItem::new(key!(Tab), "接受"),
+                            HintItem::new(key!(Right), "深入"),
+                            HintItem::new(key!(Esc), "关闭"),
                         ]
                     } else {
                         vec![
-                            HintItem::new(key!(Enter), "submit"),
-                            HintItem::new(key!(Esc), "back"),
+                            HintItem::new(key!(Enter), "提交"),
+                            HintItem::new(key!(Esc), "返回"),
                         ]
                     }
                 }
                 QuestionFocus::Navigation => {
                     vec![
-                        HintItem::new(key!(Esc), "unselect"),
-                        HintItem::new(key!(Tab), "scrollback"),
-                        HintItem::new(key!('X'), "dismiss"),
+                        HintItem::new(key!(Esc), "取消选择"),
+                        HintItem::new(key!(Tab), "回滚"),
+                        HintItem::new(key!('X'), "关闭"),
                     ]
                 }
             }
         } else if self.cancel_turn_view.is_some() {
             vec![
-                HintItem::paired(key!('1'), key!('4'), "select"),
-                HintItem::new(key!(Enter), "confirm"),
-                HintItem::new(key!(Esc), "keep running"),
-                HintItem::new(key!(Tab), "scrollback"),
+                HintItem::paired(key!('1'), key!('4'), "选择"),
+                HintItem::new(key!(Enter), "确认"),
+                HintItem::new(key!(Esc), "继续运行"),
+                HintItem::new(key!(Tab), "回滚"),
             ]
         } else {
             self.normal_pane_hints(registry)
@@ -579,7 +579,7 @@ impl AgentView {
             elapsed_text.width() as u16,
         );
         if let Some(activity) = activity_label.as_deref() {
-            let segment = format!("{activity} \u{00b7} ");
+            let segment = format!("{activity} | ");
             let w = segment.width() as u16;
             rx = rx.saturating_sub(w);
             buf.set_span_safe(
@@ -1359,7 +1359,7 @@ impl AgentView {
         let git_text = branch.map(|b| {
             let icon = crate::git_info::branch_icon();
             if b.is_empty() {
-                format!("{icon} detached")
+                format!("{icon} 已分离")
             } else {
                 format!("{icon} {b}")
             }
@@ -1379,11 +1379,11 @@ impl AgentView {
             || lazy_git.as_ref().is_some_and(|i| i.is_worktree);
         if show_worktree_label {
             let label_style = Style::default().fg(theme.accent_user).bg(theme.bg_base);
-            path_offset += "worktree ".width() as u16;
-            parts.push(Span::styled("worktree ", label_style));
+            path_offset += "工作树 ".width() as u16;
+            parts.push(Span::styled("工作树 ", label_style));
         }
         if let Some(profile) = xai_grok_sandbox::profile_name() {
-            let sandbox_text = format!("sandbox:{profile} ");
+            let sandbox_text = format!("沙箱:{profile} ");
             let sandbox_style = Style::default().fg(theme.warning).bg(theme.bg_base);
             path_offset += sandbox_text.width() as u16;
             parts.push(Span::styled(sandbox_text, sandbox_style));
@@ -1401,7 +1401,7 @@ impl AgentView {
             .or_else(|| lazy_git.as_ref().and_then(|i| i.main_repo.clone()));
         if let Some(main_repo) = main_repo_display {
             parts.push(Span::styled(
-                format!(" (worktree of {main_repo})"),
+                format!(" (主仓 {main_repo} 的工作树)"),
                 cwd_style,
             ));
         }
@@ -2148,9 +2148,9 @@ impl AgentView {
             };
             let plan_label: &str = if approval_is_commenting || casual_commenting {
                 commenting_label = match commenting_range {
-                    Some(r) if r.len() == 1 => format!("commenting L{}", r.start),
-                    Some(r) => format!("commenting L{}-{}", r.start, r.end - 1),
-                    None => "commenting".to_string(),
+                    Some(r) if r.len() == 1 => format!("评论 L{}", r.start),
+                    Some(r) => format!("评论 L{}-{}", r.start, r.end - 1),
+                    None => "评论中".to_string(),
                 };
                 commenting_label.as_str()
             } else if self.plan_approval_view.is_some() {
@@ -2211,7 +2211,7 @@ impl AgentView {
             },
             PromptMode::EditingQueued { id, .. } => {
                 let pos = self.session.queue_position(*id).map(|i| i + 1).unwrap_or(1);
-                editing_label = format!("editing queued #{pos}");
+                editing_label = format!("编辑排队 #{pos}");
                 PromptInfo {
                     model_name: &editing_label,
                     flags: mode_flags,
@@ -2545,15 +2545,15 @@ impl AgentView {
                         left_spans.push(Span::styled(counter, hint_style));
                     }
                     left_spans.push(Span::styled("\u{2191}/\u{2193}", hint_key));
-                    left_spans.push(Span::styled(" navigate", hint_style));
+                    left_spans.push(Span::styled(" 导航", hint_style));
                     if qv.questions.len() > 1 {
-                        left_spans.push(Span::styled(" \u{b7} ", hint_style));
+                        left_spans.push(Span::styled(" | ", hint_style));
                         left_spans.push(Span::styled("\u{2190}/\u{2192}", hint_key));
-                        left_spans.push(Span::styled(" question", hint_style));
+                        left_spans.push(Span::styled(" 提问", hint_style));
                     }
-                    left_spans.push(Span::styled(" \u{b7} ", hint_style));
+                    left_spans.push(Span::styled(" | ", hint_style));
                     left_spans.push(Span::styled("y", hint_key));
-                    left_spans.push(Span::styled(" copy", hint_style));
+                    left_spans.push(Span::styled(" 复制", hint_style));
                     let left_line = Line::from(left_spans);
                     let avail_w = footer_w.saturating_sub(3);
                     buf.set_line_safe(content_x, footer_y, &left_line, avail_w);
@@ -2879,8 +2879,8 @@ impl AgentView {
                             hint_w,
                         );
                     }
-                    let label = " history ";
-                    let label_w = label.len() as u16;
+                    let label = " 历史 ";
+                    let label_w = unicode_width::UnicodeWidthStr::width(label) as u16;
                     if label_w + 2 <= panel_width {
                         buf.set_line_safe(
                             panel_x + 1,
@@ -3066,8 +3066,8 @@ impl AgentView {
                 match perm.focus {
                     PermissionFocus::FollowupInput => {
                         vec![
-                            HintItem::new(key!(Enter), "send"),
-                            HintItem::new(key!(Esc), "back"),
+                            HintItem::new(key!(Enter), "发送"),
+                            HintItem::new(key!(Esc), "返回"),
                         ]
                     }
                     PermissionFocus::Options => {
@@ -3076,9 +3076,9 @@ impl AgentView {
                         let n = perm.options.len().min(9) as u8;
                         let last_ch = char::from(b'0' + n.max(1));
                         let last_key = KeyShortcut::new(KeyCode::Char(last_ch), KeyModifiers::NONE);
-                        let mut hints = vec![HintItem::paired(key!('1'), last_key, "select")];
+                        let mut hints = vec![HintItem::paired(key!('1'), last_key, "选择")];
                         if perm.has_adjustable_scope() {
-                            hints.push(HintItem::paired(key!(Left), key!(Right), "scope"));
+                            hints.push(HintItem::paired(key!(Left), key!(Right), "范围"));
                         }
                         if !perm.description.is_empty() {
                             let label = if perm.args_expanded {
@@ -3088,8 +3088,8 @@ impl AgentView {
                             };
                             hints.push(HintItem::new(key!('f', CONTROL), label));
                         }
-                        hints.push(HintItem::new(key!('o', CONTROL), "always-approve"));
-                        hints.push(HintItem::new(key!('c', CONTROL), "cancel"));
+                        hints.push(HintItem::new(key!('o', CONTROL), "始终批准"));
+                        hints.push(HintItem::new(key!('c', CONTROL), "取消"));
                         hints
                     }
                 }
@@ -3115,18 +3115,18 @@ impl AgentView {
                 use crate::views::shortcuts_bar::HintItem;
                 let hints = if self.is_casual_commenting() {
                     vec![
-                        HintItem::new(key!(Enter), "save comment"),
-                        HintItem::new(key!(Esc), "cancel"),
+                        HintItem::new(key!(Enter), "保存评论"),
+                        HintItem::new(key!(Esc), "取消"),
                     ]
                 } else {
                     let mut h = vec![
-                        HintItem::new(key!('c'), "comment"),
-                        HintItem::new(key!('f', CONTROL), "fullscreen"),
+                        HintItem::new(key!('c'), "评论"),
+                        HintItem::new(key!('f', CONTROL), "全屏"),
                     ];
                     if !self.plan_comments.is_empty() {
-                        h.push(HintItem::new(key!('s'), "send"));
+                        h.push(HintItem::new(key!('s'), "发送"));
                     }
-                    h.push(HintItem::new(key!(Esc), "close"));
+                    h.push(HintItem::new(key!(Esc), "关闭"));
                     h
                 };
                 ShortcutsBar::new(&hints)
@@ -3140,23 +3140,23 @@ impl AgentView {
                 QuestionFocus::InputMode => {
                     if self.prompt.file_search_visible() {
                         vec![
-                            HintItem::paired(key!(Up), key!(Down), "nav"),
-                            HintItem::new(key!(Tab), "accept"),
-                            HintItem::new(key!(Right), "drill"),
-                            HintItem::new(key!(Esc), "dismiss"),
+                            HintItem::paired(key!(Up), key!(Down), "导航"),
+                            HintItem::new(key!(Tab), "接受"),
+                            HintItem::new(key!(Right), "深入"),
+                            HintItem::new(key!(Esc), "关闭"),
                         ]
                     } else {
                         vec![
-                            HintItem::new(key!(Enter), "submit"),
-                            HintItem::new(key!(Esc), "back"),
+                            HintItem::new(key!(Enter), "提交"),
+                            HintItem::new(key!(Esc), "返回"),
                         ]
                     }
                 }
                 QuestionFocus::Navigation => {
                     vec![
-                        HintItem::new(key!(Esc), "unselect"),
-                        HintItem::new(key!(Tab), "scrollback"),
-                        HintItem::new(key!('X'), "dismiss"),
+                        HintItem::new(key!(Esc), "取消选择"),
+                        HintItem::new(key!(Tab), "回滚"),
+                        HintItem::new(key!('X'), "关闭"),
                     ]
                 }
             };
@@ -3164,10 +3164,10 @@ impl AgentView {
         } else if self.cancel_turn_view.is_some() {
             use crate::views::shortcuts_bar::HintItem;
             let hints = vec![
-                HintItem::paired(key!('1'), key!('4'), "select"),
-                HintItem::new(key!(Enter), "confirm"),
-                HintItem::new(key!(Esc), "keep running"),
-                HintItem::new(key!(Tab), "scrollback"),
+                HintItem::paired(key!('1'), key!('4'), "选择"),
+                HintItem::new(key!(Enter), "确认"),
+                HintItem::new(key!(Esc), "继续运行"),
+                HintItem::new(key!(Tab), "回滚"),
             ];
             ShortcutsBar::new(&hints)
                 .with_pending(pending_hint)
@@ -3190,13 +3190,13 @@ impl AgentView {
                     0,
                     HintItem {
                         keys: vec![key!('[', CONTROL), key!(']', CONTROL)],
-                        label: "agents".into(),
+                        label: "代理".into(),
                         custom_display: Some("Ctrl+[/]"),
                         description: None,
                         pinned: false,
                     },
                 );
-                hints.insert(0, HintItem::new(key!('\\', CONTROL), "dashboard"));
+                hints.insert(0, HintItem::new(key!('\\', CONTROL), "仪表盘"));
             }
             let help_hint = registry.find(ActionId::ShortcutsHelp).map(|def| {
                 let mut hint = def.hint();
@@ -3276,30 +3276,30 @@ impl AgentView {
                     .is_some_and(|pav| !pav.comments.is_empty());
             let viewer_hints = if in_plan_approval && on_comment {
                 let mut h = vec![
-                    HintItem::new(key!(Enter), "edit"),
-                    HintItem::new(key!('x'), "delete"),
+                    HintItem::new(key!(Enter), "编辑"),
+                    HintItem::new(key!('x'), "删除"),
                 ];
                 if approval_has_comments {
-                    h.push(HintItem::new(key!('s'), "send"));
+                    h.push(HintItem::new(key!('s'), "发送"));
                 } else {
-                    h.push(HintItem::new(key!('a'), "approve"));
+                    h.push(HintItem::new(key!('a'), "批准"));
                 }
-                h.push(HintItem::new(key!('q'), "quit plan"));
-                h.push(HintItem::new(key!(Tab), "prompt"));
+                h.push(HintItem::new(key!('q'), "退出计划"));
+                h.push(HintItem::new(key!(Tab), "提示"));
                 h
             } else if in_plan_approval {
-                let mut h = vec![HintItem::new(key!('c'), "comment")];
+                let mut h = vec![HintItem::new(key!('c'), "评论")];
                 if approval_has_comments {
-                    h.push(HintItem::new(key!('s'), "send"));
+                    h.push(HintItem::new(key!('s'), "发送"));
                 } else {
-                    h.push(HintItem::new(key!('a'), "approve"));
+                    h.push(HintItem::new(key!('a'), "批准"));
                 }
-                h.push(HintItem::new(key!('q'), "quit plan"));
+                h.push(HintItem::new(key!('q'), "退出计划"));
                 if self.vim_mode {
-                    h.push(HintItem::paired(key!('j'), key!('k'), "nav"));
+                    h.push(HintItem::paired(key!('j'), key!('k'), "导航"));
                 }
-                h.push(HintItem::new(key!('v'), "select"));
-                h.push(HintItem::new(key!(Tab), "prompt"));
+                h.push(HintItem::new(key!('v'), "选择"));
+                h.push(HintItem::new(key!(Tab), "提示"));
                 h
             } else if is_plan_viewer {
                 let on_casual_comment = viewer
@@ -3312,37 +3312,37 @@ impl AgentView {
                     .is_some_and(|item| item.comment_id().is_some());
                 let mut h = if on_casual_comment {
                     vec![
-                        HintItem::new(key!(Enter), "edit"),
-                        HintItem::new(key!('x'), "delete"),
+                        HintItem::new(key!(Enter), "编辑"),
+                        HintItem::new(key!('x'), "删除"),
                     ]
                 } else {
-                    vec![HintItem::new(key!('c'), "comment")]
+                    vec![HintItem::new(key!('c'), "评论")]
                 };
                 if has_plan_comments {
-                    h.push(HintItem::new(key!('s'), "send"));
+                    h.push(HintItem::new(key!('s'), "发送"));
                 }
                 if self.vim_mode {
-                    h.push(HintItem::paired(key!('j'), key!('k'), "nav"));
+                    h.push(HintItem::paired(key!('j'), key!('k'), "导航"));
                 }
-                h.push(HintItem::new(key!('v'), "select"));
-                h.push(HintItem::new(key!('f', CONTROL), "fullscreen"));
-                h.push(HintItem::new(key!('/'), "search"));
-                h.push(HintItem::new(key!(Esc), "close"));
+                h.push(HintItem::new(key!('v'), "选择"));
+                h.push(HintItem::new(key!('f', CONTROL), "全屏"));
+                h.push(HintItem::new(key!('/'), "搜索"));
+                h.push(HintItem::new(key!(Esc), "关闭"));
                 h
             } else {
-                let mut h = vec![HintItem::new(key!(Enter), "confirm")];
+                let mut h = vec![HintItem::new(key!(Enter), "确认")];
                 if self.vim_mode {
-                    h.push(HintItem::paired(key!('j'), key!('k'), "nav"));
+                    h.push(HintItem::paired(key!('j'), key!('k'), "导航"));
                 }
-                h.push(HintItem::new(key!('v'), "select"));
-                h.push(HintItem::new(key!('x'), "clear"));
+                h.push(HintItem::new(key!('v'), "选择"));
+                h.push(HintItem::new(key!('x'), "清除"));
                 if self.vim_mode {
-                    h.push(HintItem::new(key!('y'), "copy"));
-                    h.push(HintItem::new(key!('Y'), "filename"));
+                    h.push(HintItem::new(key!('y'), "复制"));
+                    h.push(HintItem::new(key!('Y'), "文件名"));
                 }
-                h.push(HintItem::new(key!(':'), "goto"));
-                h.push(HintItem::new(key!('/'), "search"));
-                h.push(HintItem::new(key!(Esc), "cancel"));
+                h.push(HintItem::new(key!(':'), "跳转"));
+                h.push(HintItem::new(key!('/'), "搜索"));
+                h.push(HintItem::new(key!(Esc), "取消"));
                 h
             };
             let input_bar_active = viewer.list_state.input_mode().is_some();
@@ -3448,7 +3448,7 @@ impl AgentView {
                         let tick = self.scrollback.animation_tick();
                         let frames = crate::glyphs::braille_spinner_frames();
                         let frame = frames[(tick / SPINNER_DIVISOR) as usize % frames.len()];
-                        let loading = format!("{} Loading...", frame);
+                        let loading = format!("{} 加载中…", frame);
                         let lw = loading.width() as u16;
                         let lx = popup_rect.x + 1 + inner_cols.saturating_sub(lw) / 2;
                         let ly = popup_rect.y + 1 + inner_rows / 2;
@@ -3490,14 +3490,14 @@ impl AgentView {
                                     viewer.image_width, viewer.image_height, viewer.mime_type,
                                 )),
                                 ratatui::text::Line::from(""),
-                                ratatui::text::Line::from("  Press Esc to close"),
+                                ratatui::text::Line::from("  按 Esc 关闭"),
                             ];
                             ratatui::widgets::Paragraph::new(meta_lines)
                                 .style(Style::default().fg(theme.gray_dim).bg(theme.bg_base))
                                 .render(inner_rect, buf);
                         } else {
-                            let loading = "Loading...";
-                            let lw = loading.len() as u16;
+                            let loading = "加载中…";
+                            let lw = unicode_width::UnicodeWidthStr::width(loading) as u16;
                             let lx = inner_rect.x + inner_cols.saturating_sub(lw) / 2;
                             let ly = inner_rect.y + inner_rows / 2;
                             buf.set_span_safe(
@@ -3517,7 +3517,7 @@ impl AgentView {
                 let clear = crate::terminal::overlay::clear_kitty();
                 prompt_post_flush = Some(clear.into());
             }
-            let hints = vec![HintItem::new(key!(Esc), "close")];
+            let hints = vec![HintItem::new(key!(Esc), "关闭")];
             ShortcutsBar::new(&hints).render(layout.shortcuts, buf);
             self.pane_areas = layout.pane_areas();
             return (None, prompt_post_flush);
@@ -3556,10 +3556,10 @@ impl AgentView {
             }
             let play_label = if viewer.playing { "pause" } else { "play" };
             let hints = vec![
-                HintItem::new(key!(Esc), "close"),
+                HintItem::new(key!(Esc), "关闭"),
                 HintItem::new(key!(' '), play_label),
-                HintItem::new(key!(Left), "back"),
-                HintItem::new(key!(Right), "fwd"),
+                HintItem::new(key!(Left), "返回"),
+                HintItem::new(key!(Right), "前进"),
             ];
             ShortcutsBar::new(&hints).render(layout.shortcuts, buf);
             self.pane_areas = layout.pane_areas();
@@ -3616,8 +3616,8 @@ impl AgentView {
                 prompt_post_flush = Some(clear.into());
             }
             let hints = vec![
-                HintItem::new(key!(Esc), "quit"),
-                HintItem::new(key!(' '), "fire"),
+                HintItem::new(key!(Esc), "退出"),
+                HintItem::new(key!(' '), "发射"),
             ];
             ShortcutsBar::new(&hints).render(layout.shortcuts, buf);
             self.pane_areas = layout.pane_areas();
@@ -3760,8 +3760,7 @@ impl AgentView {
                         }
                     }
                     let n = viewer.list_state.copy_range().map(|r| r.len()).unwrap_or(1);
-                    let s = if n == 1 { "" } else { "s" };
-                    let status = format!("Selected: {n} line{s}");
+                    let status = format!("已选: {n} 行");
                     let status_style = Style::default().fg(theme.text_secondary).bg(theme.bg_base);
                     buf.set_string(content_x, status_y, &status, status_style);
                 }
@@ -3844,17 +3843,17 @@ impl AgentView {
             );
             if modal_state.input.is_some() {
                 let hints = vec![
-                    HintItem::new(key!(Enter), "submit"),
-                    HintItem::new(key!(Esc), "cancel"),
+                    HintItem::new(key!(Enter), "提交"),
+                    HintItem::new(key!(Esc), "取消"),
                 ];
                 ShortcutsBar::new(&hints).render(layout.shortcuts, buf);
             } else if modal_state.pending_action.is_some() {
-                let hints = vec![HintItem::new(key!(Esc), "dismiss")];
+                let hints = vec![HintItem::new(key!(Esc), "关闭")];
                 ShortcutsBar::new(&hints).render(layout.shortcuts, buf);
             } else if modal_state.picker_state.search_active {
                 let hints = vec![
-                    HintItem::new(key!(Esc), "clear search"),
-                    HintItem::new(key!(Enter), "keep filter"),
+                    HintItem::new(key!(Esc), "清除搜索"),
+                    HintItem::new(key!(Enter), "保留筛选"),
                 ];
                 ShortcutsBar::new(&hints).render(layout.shortcuts, buf);
             }
@@ -3911,10 +3910,10 @@ impl AgentView {
                         let spinner_frames = crate::glyphs::braille_spinner_frames();
                         let tick = self.scrollback.current_tick() as usize;
                         let spinner = spinner_frames[tick % spinner_frames.len()];
-                        let label = format!("{spinner} Loading...");
+                        let label = format!("{spinner} 加载中…");
                         let cy = rect.y + rect.height / 2;
                         buf.set_string_safe(
-                            center_x(label.len()),
+                            center_x(unicode_width::UnicodeWidthStr::width(label.as_str())),
                             cy,
                             &label,
                             Style::default().fg(theme.gray_dim),

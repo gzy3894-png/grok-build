@@ -555,9 +555,9 @@ pub fn render_permission_view(
             .fg(theme.text_secondary)
             .add_modifier(Modifier::DIM);
         let hint_line = Line::from(vec![
-            Span::styled("Use ", hint_style),
+            Span::styled("用 ", hint_style),
             Span::styled("\u{2190} \u{2192}", hint_style),
-            Span::styled(" to choose permission scope", hint_style),
+            Span::styled(" 选择权限范围", hint_style),
         ]);
         buf.set_line(content_x, y, &hint_line, content_width);
         y += 1;
@@ -1526,7 +1526,7 @@ fn truncation_indicator_line(theme: &Theme) -> Line<'static> {
             "Ctrl-F",
             Style::default().fg(theme.accent_user).bg(theme.bg_light),
         ),
-        Span::styled(" to expand", style),
+        Span::styled(" 展开", style),
     ])
 }
 
@@ -1736,7 +1736,7 @@ fn build_reject_once_line<'a>(
     } else {
         // Placeholder.
         (
-            "No, reject (type to add feedback)".to_string(),
+            "否，拒绝（输入以添加反馈）".to_string(),
             Style::default().fg(theme.gray).bg(row_bg),
         )
     };
@@ -1787,7 +1787,7 @@ fn dynamic_option_label(
             let scope_text = match scope.selected {
                 McpScope::Tool => perm.display_name(),
                 McpScope::Server => match scope.server_prefix.as_deref() {
-                    Some(s) => format!("all tools from {}", mcp_titleize_segment(s)),
+                    Some(s) => format!("来自 {} 的全部工具", mcp_titleize_segment(s)),
                     None => perm.display_name(),
                 },
             };

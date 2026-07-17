@@ -226,7 +226,7 @@ fn render_hooks_expanded_inner(runs: &[HookRunEntry]) -> Vec<BlockLine> {
                         Span::styled(format!("{}  ", INDENT), theme.muted()),
                         Span::styled("- ", theme.muted()),
                         Span::styled(run.name.clone(), theme.muted()),
-                        Span::styled(" skipped", theme.muted()),
+                        Span::styled(" 已跳过", theme.muted()),
                     ])
                     .into(),
                 );
@@ -244,9 +244,13 @@ fn render_hooks_expanded_inner(runs: &[HookRunEntry]) -> Vec<BlockLine> {
                     ])
                     .into(),
                 );
-                // Error text — strip redundant hook name prefix if present
+                // Error text — strip redundant hook name prefix if present.
+                // Match localized UI prefix and legacy English shell prefix.
+                let zh_prefix = format!("钩子 '{}' ", run.name);
+                let en_prefix = ["hook '", run.name.as_str(), "' "].concat();
                 let cleaned = error
-                    .strip_prefix(&format!("hook '{}' ", run.name))
+                    .strip_prefix(zh_prefix.as_str())
+                    .or_else(|| error.strip_prefix(en_prefix.as_str()))
                     .unwrap_or(error);
                 let err_text = crate::render::line_utils::truncate_str(cleaned, 120);
                 for err_line in err_text.lines().take(3) {

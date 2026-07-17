@@ -82,18 +82,18 @@ impl SlashCommand for ThemeCommand {
         let available = ThemeKind::available();
 
         // Prepend "auto" (follow system appearance) as the first option.
-        let auto_active = if is_auto { " (active)" } else { "" };
+        let auto_active = if is_auto { "（当前）" } else { "" };
         let mut items = vec![ArgItem {
             display: "auto".to_string(),
             match_text: "auto".to_string(),
             insert_text: "auto".to_string(),
-            description: format!("auto (follow system){auto_active}"),
+            description: format!("自动（跟随系统）{auto_active}"),
         }];
 
-        // Concrete themes — only show "(active)" when not in auto mode.
+        // Concrete themes — only show "（当前）" when not in auto mode.
         items.extend(available.iter().map(|kind| {
             let active = if *kind == current && !is_auto {
-                " (active)"
+                "（当前）"
             } else {
                 ""
             };
@@ -133,7 +133,7 @@ impl SlashCommand for ThemeCommand {
                 let all_names: Vec<&str> =
                     ThemeKind::ALL.iter().map(|k| k.display_name()).collect();
                 CommandResult::Error(format!(
-                    "Unknown theme: {}. Available: auto, {}",
+                    "未知主题：{}。可选：auto, {}",
                     trimmed,
                     all_names.join(", ")
                 ))
@@ -183,7 +183,7 @@ mod tests {
             };
             let items = cmd.suggest_args(&ctx, "").expect("should return items");
             assert_eq!(items[0].insert_text, "auto");
-            assert!(items[0].description.contains("follow system"));
+            assert!(items[0].description.contains("跟随系统"));
             // auto + all available concrete themes
             assert_eq!(items.len(), ThemeKind::available().len() + 1);
         });
@@ -203,8 +203,8 @@ mod tests {
             };
             let items = cmd.suggest_args(&ctx, "").expect("should return items");
             assert!(
-                items[0].description.contains("(active)"),
-                "auto should show (active), got: {}",
+                items[0].description.contains("（当前）"),
+                "auto should show （当前）, got: {}",
                 items[0].description
             );
         });
@@ -224,8 +224,8 @@ mod tests {
             };
             let items = cmd.suggest_args(&ctx, "").expect("should return items");
             assert!(
-                !items[0].description.contains("(active)"),
-                "auto should not show (active), got: {}",
+                !items[0].description.contains("（当前）"),
+                "auto should not show （当前）, got: {}",
                 items[0].description
             );
         });
@@ -250,8 +250,8 @@ mod tests {
                 .find(|i| i.insert_text == "groknight")
                 .expect("groknight should be in list");
             assert!(
-                groknight.description.contains("(active)"),
-                "explicit theme should show (active), got: {}",
+                groknight.description.contains("（当前）"),
+                "explicit theme should show （当前）, got: {}",
                 groknight.description
             );
         });
@@ -271,11 +271,11 @@ mod tests {
                 screen_mode: crate::app::ScreenMode::Fullscreen,
             };
             let items = cmd.suggest_args(&ctx, "").expect("should return items");
-            // No concrete theme should show "(active)" in auto mode.
+            // No concrete theme should show "（当前）" in auto mode.
             for item in items.iter().skip(1) {
                 assert!(
-                    !item.description.contains("(active)"),
-                    "{} should not show (active) in auto mode",
+                    !item.description.contains("（当前）"),
+                    "{} should not show （当前） in auto mode",
                     item.insert_text
                 );
             }

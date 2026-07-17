@@ -415,9 +415,9 @@ impl TokenUsageCategory {
     /// `SkillManager::listing_snapshot`.
     pub fn skills_listing(text: &str, skill_count: usize) -> Self {
         Self {
-            label: "Skills".to_string(),
+            label: "技能".to_string(),
             tokens: xai_token_estimation::estimate_tokens(text),
-            detail: Some(count_detail(skill_count as u64, "skill")),
+            detail: Some(count_detail(skill_count as u64, "技能")),
         }
     }
 
@@ -425,17 +425,26 @@ impl TokenUsageCategory {
     /// body for the current server set.
     pub fn mcp_servers(text: &str, server_count: usize) -> Self {
         Self {
-            label: "MCP servers".to_string(),
+            label: "MCP 服务器".to_string(),
             tokens: xai_token_estimation::estimate_tokens(text),
-            detail: Some(count_detail(server_count as u64, "server")),
+            detail: Some(count_detail(server_count as u64, "服务器")),
         }
     }
 }
 
-/// Formats a count with a naively pluralized noun: `"1 skill"`, `"21 skills"`.
+/// Formats a count with a display noun: `"1 技能"`, `"21 技能"`, `"12 工具"`.
+///
+/// Chinese nouns are not pluralized; English wire/test callers that still
+/// pass `"skill"` / `"tool"` / `"server"` get a light plural suffix so
+/// existing asserts keep working.
 pub fn count_detail(count: u64, noun: &str) -> String {
-    let suffix = if count == 1 { "" } else { "s" };
-    format!("{count} {noun}{suffix}")
+    let is_ascii_noun = noun.chars().all(|c| c.is_ascii_alphabetic());
+    if is_ascii_noun {
+        let suffix = if count == 1 { "" } else { "s" };
+        format!("{count} {noun}{suffix}")
+    } else {
+        format!("{count} {noun}")
+    }
 }
 
 /// Context usage breakdown for session info.

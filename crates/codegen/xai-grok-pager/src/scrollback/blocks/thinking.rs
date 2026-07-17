@@ -151,11 +151,11 @@ impl ThinkingBlock {
         self.elapsed_time_ms.map(|ms| {
             let secs = ms as f64 / 1000.0;
             if secs < 60.0 {
-                format!("{:.1}s", secs)
+                format!("{:.1}秒", secs)
             } else {
                 let mins = (secs / 60.0).floor() as u32;
                 let remaining = secs - (mins as f64 * 60.0);
-                format!("{}m{:.0}s", mins, remaining)
+                format!("{}分{:.0}秒", mins, remaining)
             }
         })
     }

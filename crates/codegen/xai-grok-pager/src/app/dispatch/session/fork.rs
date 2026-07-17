@@ -46,7 +46,7 @@ pub(in crate::app::dispatch) fn dispatch_fork(
     args: crate::slash::commands::fork::ForkArgs,
 ) -> Vec<Effect> {
     let ActiveView::Agent(parent_id) = app.active_view else {
-        app.show_toast("/fork only works inside a session");
+        app.show_toast("/fork 仅在会话内可用");
         return vec![];
     };
     let (has_session, in_git_repo) = app
@@ -55,12 +55,12 @@ pub(in crate::app::dispatch) fn dispatch_fork(
         .map(|a| (a.session.session_id.is_some(), a.current_branch.is_some()))
         .unwrap_or((false, false));
     if !has_session {
-        app.show_toast("Cannot fork: session is still being created");
+        app.show_toast("无法分支: 会话仍在创建中");
         return vec![];
     }
     match args.worktree_override {
         Some(true) if !in_git_repo => {
-            app.show_toast("Cannot create worktree: not in a git repository");
+            app.show_toast("无法创建工作树: 不在 git 仓库中");
             vec![]
         }
         Some(worktree) => dispatch_fork_resolved(app, worktree, args.directive),
@@ -183,7 +183,7 @@ pub(in crate::app::dispatch) fn dispatch_fork_resolved(
         return vec![];
     };
     let Some(parent_session_id) = parent.session.session_id.clone() else {
-        app.show_toast("Cannot fork: session not yet created");
+        app.show_toast("无法分支: 会话尚未创建");
         return vec![];
     };
     let parent_cwd = parent.session.cwd.clone();
@@ -192,8 +192,8 @@ pub(in crate::app::dispatch) fn dispatch_fork_resolved(
     app.next_agent_id += 1;
     let new_agent = build_fork_placeholder(app, new_id, parent_id, &parent_cwd, worktree);
     let parent_marker = match directive.as_deref() {
-        Some(d) => format!("Forked: {d}"),
-        None => "Forked".to_string(),
+        Some(d) => format!("已分支: {d}"),
+        None => "已分支".to_string(),
     };
     let parent_chat_kind = parent.chat_kind || app.chat_mode;
     app.agents.insert(new_id, new_agent);
@@ -231,7 +231,7 @@ pub(in crate::app::dispatch) fn dispatch_fork_resolved(
         if worktree {
             agent
                 .scrollback
-                .push_block(RenderBlock::system("Creating worktree\u{2026}".to_string()));
+                .push_block(RenderBlock::system("正在创建工作树\u{2026}".to_string()));
         }
         agent.pending_first_prompt = directive;
     }
@@ -321,13 +321,13 @@ pub(in crate::app::dispatch) fn dispatch_project_selected(
     let mut effects = Vec::new();
     if disable_picker {
         app.project_picker_disabled = true;
-        app.show_toast("Won't ask about project directory again (reset in config.toml)");
+        app.show_toast("不再询问项目目录（可在 config.toml 重置）");
         effects.push(Effect::PersistProjectPickerDisabled { disabled: true });
     }
     let path = if path.is_dir() {
         path
     } else {
-        app.show_toast("Directory not found, continuing in current directory");
+        app.show_toast("未找到目录，继续使用当前目录");
         app.cwd.clone()
     };
     app.cwd = path.clone();
@@ -342,7 +342,7 @@ pub(in crate::app::dispatch) fn dispatch_project_selected(
         agent.session.cwd = path.clone();
         if changed {
             let display = crate::project_picker::sources::display_path(&path);
-            agent.show_toast(&format!("Updated working directory to {display}"));
+            agent.show_toast(&format!("工作目录已更新为 {display}"));
         }
     }
     if let Some(agent) = app.agents.get_mut(&id) {
@@ -446,15 +446,15 @@ pub(in crate::app::dispatch) fn build_child_fork_marker(
 ) -> String {
     let header = if let Some(cmd) = switch_hint {
         format!(
-            "Session {session_id} (forked from {parent_sid}) \u{2014} use {cmd} to switch between sessions",
+            "会话 {session_id}（分支自 {parent_sid}） \u{2014} 用 {cmd} 切换会话",
         )
     } else {
-        format!("Session {session_id} (forked from {parent_sid})")
+        format!("会话 {session_id}（分支自 {parent_sid})")
     };
     if worktree {
         header
     } else {
-        format!("{header}\n  (both agents share cwd)")
+        format!("{header}\n  （两个代理共享工作目录）")
     }
 }
 pub(in crate::app::dispatch) fn dispatch_startup_fork_session(
@@ -529,18 +529,18 @@ pub(in crate::app::dispatch) fn handle_worktree_forked(
         app.restore_code = None;
         agent.prompt.file_search.retarget(&session_cwd);
         agent.scrollback.push_block(RenderBlock::system(format!(
-            "Worktree ready: {}",
+            "工作树已就绪: {}",
             worktree_path.display()
         )));
         match (code_restored, restore_summary.as_deref()) {
             (true, Some(s)) => {
                 agent
                     .scrollback
-                    .push_block(RenderBlock::system(format!("\u{2713} Code restored: {s}")));
+                    .push_block(RenderBlock::system(format!("\u{2713} 代码已恢复: {s}")));
             }
             (false, Some(s)) => {
                 agent.scrollback.push_block(RenderBlock::system(format!(
-                    "\u{26A0} Code restore failed: {s}"
+                    "\u{26A0} 代码恢复失败: {s}"
                 )));
             }
             _ => {}
